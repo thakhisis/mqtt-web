@@ -7,6 +7,7 @@ namespace mqtt_web
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton(typeof(IMqttService), typeof(MqttService));
         }
 
         public void Configure(IComponentsApplicationBuilder app)
