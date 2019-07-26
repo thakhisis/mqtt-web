@@ -1,0 +1,60 @@
+﻿@page "/mqtt"
+@using MqttWeb.Data
+@using MqttWeb.SessionState
+@implements IDisposable
+@inject MqttState MqttState
+@inject MqttClient MqttClient
+<h1>MQTT</h1>
+
+<button class="btn btn-primary" @onclick="Start">Connect</button>
+<button class="btn btn-primary" @onclick="Stop">Disconnect</button>
+
+<h3>Messages</h3>
+@foreach (var message in MqttState.Messages) {
+    <div>@message</div>
+}
+<hr />
+<h3>Debug</h3>
+@foreach (var debug in debugs) {
+    <div>@debug</div>
+}
+
+
+@functions {
+    List<string> debugs = new List<string>();
+    List<string> messages = new List<string>();
+
+    protected override void OnInit()
+    {
+        // Subscribe to the StateChanged EventHandler
+        debugs.Add("Init'ed");
+
+        MqttState.StateChanged +=
+        OnMqttStateAdvancedStateChanged;
+    }
+
+    void OnMqttStateAdvancedStateChanged(object sender, EventArgs e) {
+        debugs.Add("state changed");
+        base.Invoke(StateHasChanged);
+    }
+
+    void IDisposable.Dispose()
+    {
+        debugs.Add("Disposing");
+
+        // When this control is disposed of
+        // unsubscribe from the StateChanged EventHandler
+        MqttState.StateChanged -= OnMqttStateAdvancedStateChanged;
+    }
+
+    void Start() {
+        debugs.Add("Connecting");
+        MqttClient.Connect();
+    }
+
+    void Stop() {
+        debugs.Add("Disconnecting");
+        MqttClient.Disconnect();
+    }
+}
+
