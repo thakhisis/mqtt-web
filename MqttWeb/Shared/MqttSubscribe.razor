@@ -1,0 +1,37 @@
+@inject MqttState MqttState
+@inject MqttClient MqttClient
+@using System.Linq.Expressions
+@using MqttWeb.Data
+
+<div><label>Topic: <input @bind-value="@topic" @bind-value:event="oninput" /></label></div>
+<div>
+    <button class="btn btn-primary" @onclick="Subscribe" disabled="@(MqttClient.IsConnected == false)">Subscribe</button>
+</div>
+
+@foreach (var message in messages) {
+    <div>@message</div>
+}
+
+@functions {
+    string topic;
+    List<string> messages;
+
+    protected override void OnInit() {
+        base.OnInit();
+        messages = new List<string>();
+    }
+
+    async Task Subscribe() {
+        if (string.IsNullOrEmpty(topic)) return;
+        var subscription = await MqttClient.SubscribeAsync(this.topic);
+        
+        subscription.MessageReceived += (o, s) => {
+            this.messages.Add(s.ApplicationMessage.Topic); 
+            StateChanged();
+        };
+    }
+
+    void StateChanged() {
+        base.Invoke(StateHasChanged);
+    }
+} 

@@ -29,7 +29,6 @@ namespace MqttWeb
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
             services.AddScoped<MqttState>();
             services.AddScoped<MqttClient>();
         }

@@ -1,26 +1,37 @@
 ﻿@page "/mqtt"
-@using MqttWeb.Data
-@using MqttWeb.SessionState
 @implements IDisposable
 @inject MqttState MqttState
 @inject MqttClient MqttClient
 <h1>MQTT</h1>
 
-<button class="btn btn-primary" @onclick="Start">Connect</button>
-<button class="btn btn-primary" @onclick="Stop">Disconnect</button>
-
-<h3>Messages</h3>
-@foreach (var message in MqttState.Messages) {
-    <div>@message</div>
+<div><label>Host: <input @bind-value="@MqttState.Settings.Host" @bind-value:event="oninput" /></label></div>
+<div><label>Port: <input @bind-value="@MqttState.Settings.Port" @bind-value:event="oninput" /></label></div>
+<div><label>Username: <input @bind-value="@MqttState.Settings.Username" @bind-value:event="oninput" /></label></div>
+<div><label>Password: <input type="password" @bind-value="@MqttState.Settings.Password" @bind-value:event="oninput" /></label></div>
+<br/>
+<div>
+    <button class="btn btn-primary" @onclick="Connect" disabled="@MqttClient.IsConnected">Connect</button>
+    <button class="btn btn-primary" @onclick="Disconnect" disabled="@(MqttClient.IsConnected == false)">Disconnect</button>
+</div>
+<hr />
+@if (MqttClient.IsConnected)
+{
+    <MqttPublish />
+    <MqttSubscribe />
 }
+
+
+
 <hr />
 <h3>Debug</h3>
 @foreach (var debug in debugs) {
     <div>@debug</div>
 }
 
+<span>@MqttState.Settings.Host</span>
 
 @functions {
+
     List<string> debugs = new List<string>();
     List<string> messages = new List<string>();
 
@@ -29,8 +40,7 @@
         // Subscribe to the StateChanged EventHandler
         debugs.Add("Init'ed");
 
-        MqttState.StateChanged +=
-        OnMqttStateAdvancedStateChanged;
+        MqttState.StateChanged += OnMqttStateAdvancedStateChanged;
     }
 
     void OnMqttStateAdvancedStateChanged(object sender, EventArgs e) {
@@ -47,14 +57,14 @@
         MqttState.StateChanged -= OnMqttStateAdvancedStateChanged;
     }
 
-    void Start() {
+    async Task Connect() {
         debugs.Add("Connecting");
-        MqttClient.Connect();
+        await MqttClient.ConnectAsync("", "", 0, false, "", "");
     }
 
-    void Stop() {
+    async Task Disconnect() {
         debugs.Add("Disconnecting");
-        MqttClient.Disconnect();
+        await MqttClient.DisconnectAsync();
     }
 }
-
+ 

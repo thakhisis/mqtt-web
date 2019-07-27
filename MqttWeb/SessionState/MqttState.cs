@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MqttWeb.Data;
 
 namespace MqttWeb.SessionState
 {
     public class MqttState
     {
+        public MqttConnectionSettings Settings { get; set; } = new MqttConnectionSettings();
         public event EventHandler StateChanged;
 
+        public List<string> SubscribedTopics { get; set; } = new List<string>();
         public List<string> Messages { get; set; } = new List<string>() {  };
         public List<string> Errors { get; set; } = new List<string>() {  };
 
