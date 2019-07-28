@@ -13,14 +13,17 @@ using System.Linq;
 
 namespace MqttWeb.Data
 {
-    public class MqttSubscription {
-        public MqttSubscription(string topic) { 
+    public class MqttSubscription
+    {
+        public MqttSubscription(string topic)
+        {
             this.Topic = topic;
         }
         public event EventHandler<MqttApplicationMessageReceivedEventArgs> MessageReceived;
         public string Topic { get; }
 
-        public void MessageWasReceived(MqttApplicationMessageReceivedEventArgs e) {
+        public void MessageWasReceived(MqttApplicationMessageReceivedEventArgs e)
+        {
             this.MessageReceived.Invoke(this, e);
         }
     }
@@ -31,19 +34,32 @@ namespace MqttWeb.Data
         public MqttClient(MqttState mqttState)
         {
             MqttState = mqttState;
-        } 
+        }
 
         public MqttState MqttState { get; }
         public MQTTnet.Client.IMqttClient client;
-        
-        public List<MqttSubscription> Subscriptions { get;set; } = new List<MqttSubscription>() { new MqttSubscription("bogues test topic") };
+
+        public List<MqttSubscription> Subscriptions { get; set; } = new List<MqttSubscription>() { new MqttSubscription("bogues test topic") };
 
         public bool IsConnected => this.client != null && this.client.IsConnected;
 
 
+        public event EventHandler StateChanged;
+        public void AddSubscripption(MqttSubscription subscription)
+        {
+            this.Subscriptions.Add(subscription);
+            this.StateHasChanged();
+        }
+
+        private void StateHasChanged()
+        {
+            StateChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+
         public async Task ConnectAsync(string clientId, string host, int port, bool tls, string username, string password)
         {
-            
+
             this.MqttState.AddMessage("connecting");
             var options = new MqttClientOptionsBuilder()
                 .WithClientId("mqttweb")
@@ -76,11 +92,12 @@ namespace MqttWeb.Data
                 //callback(new MqttSubscribeMessage(e.ApplicationMessage.Topic, Encoding.UTF8.GetString(e.ApplicationMessage.Payload)));
                 //subscription.MessageWasReceived(e);
                 var subscription = this.Subscriptions.SingleOrDefault(s => s.Topic == e.ApplicationMessage.Topic);
-                if (subscription != null) {
+                if (subscription != null)
+                {
                     subscription.MessageWasReceived(e);
                 }
             });
-            
+
 
             await client.ConnectAsync(options.Build(), CancellationToken.None);
 
@@ -91,7 +108,7 @@ namespace MqttWeb.Data
             await this.client.DisconnectAsync();
         }
 
-        public async Task<MqttSubscription> SubscribeAsync(string topic) 
+        public async Task<MqttSubscription> SubscribeAsync(string topic)
         {
             var subscription = new MqttSubscription(topic);
 
@@ -100,12 +117,14 @@ namespace MqttWeb.Data
             this.Subscriptions.Add(subscription);
             return subscription;
         }
- 
-        public bool IsSubscribed(string topic) {
+
+        public bool IsSubscribed(string topic)
+        {
             return this.Subscriptions.Any(s => s.Topic == topic);
         }
 
-        public async Task UnsubscribeAsync(string topic) {
+        public async Task UnsubscribeAsync(string topic)
+        {
             if (!IsSubscribed(topic))
                 return;
 
@@ -116,19 +135,20 @@ namespace MqttWeb.Data
             this.Subscriptions.RemoveAll(s => s.Topic == topic);
         }
 
-        public async Task PublishAsync(string topic, string payload, int qos, bool retain) {
+        public async Task PublishAsync(string topic, string payload, int qos, bool retain)
+        {
 
             var message = new MqttApplicationMessageBuilder()
                 .WithTopic(topic);
-            
+
             if (!string.IsNullOrEmpty(payload))
                 message = message.WithPayload(payload);
-            
+
             if (qos == 2)
                 message = message.WithExactlyOnceQoS();
             else
                 message = message.WithAtLeastOnceQoS();
-            
+
             if (retain)
                 message = message.WithRetainFlag();
 
