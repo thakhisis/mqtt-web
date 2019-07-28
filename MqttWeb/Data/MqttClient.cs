@@ -36,7 +36,7 @@ namespace MqttWeb.Data
         public MqttState MqttState { get; }
         public MQTTnet.Client.IMqttClient client;
         
-        public List<MqttSubscription> Subscriptions { get;set; } = new List<MqttSubscription>();
+        public List<MqttSubscription> Subscriptions { get;set; } = new List<MqttSubscription>() { new MqttSubscription("bogues test topic") };
 
         public bool IsConnected => this.client != null && this.client.IsConnected;
 

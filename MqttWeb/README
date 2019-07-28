@@ -1,0 +1,10 @@
+Hvad er korrekt måde hvis man skal opdatere 'random' komponenter på baggrund af property (list) change?
+  - Fx. at et nav menu item skal vises / skjules på baggrund af en anden komponent?
+    - Purpose: NavLink items i menu bliver opdateret når man subscriber til topic
+
+## Todo
+- Functionality 
+  - Subscribed topics should be displayed in the navmenu for easy navigation
+- Design
+  - The 3 different 'forms' should be displayed in a nice coherent way
+  - Incoming messages should be displayed with more information and in a more data-table like way
