@@ -8,10 +8,11 @@
 <div><label>Port: <input @bind-value="@MqttState.Settings.Port" @bind-value:event="oninput" /></label></div>
 <div><label>Username: <input @bind-value="@MqttState.Settings.Username" @bind-value:event="oninput" /></label></div>
 <div><label>Password: <input type="password" @bind-value="@MqttState.Settings.Password" @bind-value:event="oninput" /></label></div>
-<br/>
+<br />
 <div>
     <button class="btn btn-primary" @onclick="Connect" disabled="@MqttClient.IsConnected">Connect</button>
     <button class="btn btn-primary" @onclick="Disconnect" disabled="@(MqttClient.IsConnected == false)">Disconnect</button>
+    <button class="btn btn-danger" @onclick="AddStuff">Add Stuff</button>
 </div>
 <hr />
 @if (MqttClient.IsConnected)
@@ -24,7 +25,8 @@
 
 <hr />
 <h3>Debug</h3>
-@foreach (var debug in debugs) {
+@foreach (var debug in debugs)
+{
     <div>@debug</div>
 }
 
@@ -43,7 +45,8 @@
         MqttState.StateChanged += OnMqttStateAdvancedStateChanged;
     }
 
-    void OnMqttStateAdvancedStateChanged(object sender, EventArgs e) {
+    void OnMqttStateAdvancedStateChanged(object sender, EventArgs e)
+    {
         debugs.Add("state changed");
         base.Invoke(StateHasChanged);
     }
@@ -57,14 +60,20 @@
         MqttState.StateChanged -= OnMqttStateAdvancedStateChanged;
     }
 
-    async Task Connect() {
+    async Task Connect()
+    {
         debugs.Add("Connecting");
         await MqttClient.ConnectAsync("", "", 0, false, "", "");
     }
 
-    async Task Disconnect() {
+    async Task Disconnect()
+    {
         debugs.Add("Disconnecting");
         await MqttClient.DisconnectAsync();
     }
+
+    protected void AddStuff()
+    {
+        MqttClient.AddSubscripption(new MqttSubscription("Test"));
+    }
 }
- 
