@@ -12,7 +12,6 @@
 <div>
     <button class="btn btn-primary" @onclick="Connect" disabled="@MqttClient.IsConnected">Connect</button>
     <button class="btn btn-primary" @onclick="Disconnect" disabled="@(MqttClient.IsConnected == false)">Disconnect</button>
-    <button class="btn btn-danger" @onclick="AddStuff">Add Stuff</button>
 </div>
 <hr />
 @if (MqttClient.IsConnected)
@@ -63,17 +62,12 @@
     async Task Connect()
     {
         debugs.Add("Connecting");
-        await MqttClient.ConnectAsync("", "", 0, false, "", "");
+        await MqttClient.ConnectAsync(MqttState.Settings.Host, "", 0, false, "", "");
     }
 
     async Task Disconnect()
     {
         debugs.Add("Disconnecting");
         await MqttClient.DisconnectAsync();
-    }
-
-    protected void AddStuff()
-    {
-        MqttClient.AddSubscripption(new MqttSubscription("Test"));
     }
 }

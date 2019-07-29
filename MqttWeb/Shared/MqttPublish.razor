@@ -4,11 +4,12 @@
 <div><label>Topic: <input @bind-value="@topic" @bind-value:event="oninput" /></label></div>
 <div><label>Payload: <textarea @bind-value="@payload" @bind-value:event="oninput" ></textarea></label></div>
 <div><label>Quality of Service: <input @bind-value="@qos" @bind-value:event="oninput" /></label></div>
-<div><label>Retain: <input type=checkbox @bind-value="@qos" @bind-value:event="oninput" /></label></div>
+<div><label>Retain: <input type=checkbox @bind-value="@retain" @bind-value:event="oninput" /></label></div>
 
 <div>
     <button class="btn btn-primary" @onclick="PublishAsync" disabled="@(MqttClient.IsConnected == false)">Publish</button>
 </div>
+
 @functions {
     string topic;
     string payload;

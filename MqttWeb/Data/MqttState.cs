@@ -4,14 +4,21 @@ using System.Linq;
 using System.Threading.Tasks;
 using MqttWeb.Data;
 
-namespace MqttWeb.SessionState
+namespace MqttWeb.Data
 {
     public class MqttState
     {
         public MqttConnectionSettings Settings { get; set; } = new MqttConnectionSettings();
         public event EventHandler StateChanged;
 
-        public List<string> SubscribedTopics { get; set; } = new List<string>();
+        public List<MqttSubscription> Subscriptions { get; set; } = new List<MqttSubscription>();
+        
+        public void AddSubscription(MqttSubscription subscription) 
+        {
+            this.Subscriptions.Add(subscription);
+            StateHasChanged();
+        }
+
         public List<string> Messages { get; set; } = new List<string>() {  };
         public List<string> Errors { get; set; } = new List<string>() {  };
 
@@ -29,10 +36,6 @@ namespace MqttWeb.SessionState
 
         private void StateHasChanged()
         {
-            // This will update any subscribers
-            // that the counter state has changed
-            // so they can update themselves
-            // and show the current counter value
             StateChanged?.Invoke(this, EventArgs.Empty);
         }
 

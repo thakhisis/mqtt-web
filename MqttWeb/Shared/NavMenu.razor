@@ -1,4 +1,4 @@
-﻿@inject MqttClient MqttClient
+﻿@inject MqttState MqttState
 <div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">MqttWeb</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -6,14 +6,14 @@
     </button>
 </div>
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu"> 
     <ul class="nav flex-column">
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="mqtt">
                 <span class="oi oi-list-rich" aria-hidden="true"></span> MQTT
             </NavLink>
         </li>
-        @foreach (var subscription in MqttClient.Subscriptions)
+        @foreach (var subscription in MqttState.Subscriptions)
         {
             <li class="nav-item px-3">
                 <NavLink class="nav-link" href="mqtt">
@@ -25,14 +25,11 @@
 </div>
 
 @functions {
+
     protected override void OnInit()
     {
-        MqttClient.StateChanged += MqttClientStateChangedEvent;
-
+        MqttState.StateChanged += (o,e) => base.Invoke(StateHasChanged);
     }
-
-    void MqttClientStateChangedEvent(object sender, EventArgs e) => StateHasChanged();
-
 
     bool collapseNavMenu = true;
 

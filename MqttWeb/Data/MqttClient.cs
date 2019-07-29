@@ -5,30 +5,14 @@ using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using MqttWeb.SessionState;
 using MQTTnet.Client.Receiving;
 using MQTTnet.Client.Unsubscribing;
 using System.Collections.Generic;
 using System.Linq;
+using MqttWeb.Shared;
 
 namespace MqttWeb.Data
 {
-    public class MqttSubscription
-    {
-        public MqttSubscription(string topic)
-        {
-            this.Topic = topic;
-        }
-        public event EventHandler<MqttApplicationMessageReceivedEventArgs> MessageReceived;
-        public string Topic { get; }
-
-        public void MessageWasReceived(MqttApplicationMessageReceivedEventArgs e)
-        {
-            this.MessageReceived.Invoke(this, e);
-        }
-    }
-
-
     public class MqttClient
     {
         public MqttClient(MqttState mqttState)
@@ -39,23 +23,9 @@ namespace MqttWeb.Data
         public MqttState MqttState { get; }
         public MQTTnet.Client.IMqttClient client;
 
-        public List<MqttSubscription> Subscriptions { get; set; } = new List<MqttSubscription>() { new MqttSubscription("bogues test topic") };
-
         public bool IsConnected => this.client != null && this.client.IsConnected;
 
-
         public event EventHandler StateChanged;
-        public void AddSubscripption(MqttSubscription subscription)
-        {
-            this.Subscriptions.Add(subscription);
-            this.StateHasChanged();
-        }
-
-        private void StateHasChanged()
-        {
-            StateChanged?.Invoke(this, EventArgs.Empty);
-        }
-
 
         public async Task ConnectAsync(string clientId, string host, int port, bool tls, string username, string password)
         {
@@ -87,17 +57,12 @@ namespace MqttWeb.Data
 
             client.UseApplicationMessageReceivedHandler(e =>
             {
-                //this.MqttState.AddMessage($"{e.ApplicationMessage.Topic}: {Encoding.UTF8.GetString(e.ApplicationMessage.Payload)} ");
-                //eh?.Invoke(e, EventArgs.Empty);
-                //callback(new MqttSubscribeMessage(e.ApplicationMessage.Topic, Encoding.UTF8.GetString(e.ApplicationMessage.Payload)));
-                //subscription.MessageWasReceived(e);
-                var subscription = this.Subscriptions.SingleOrDefault(s => s.Topic == e.ApplicationMessage.Topic);
+                var subscription = MqttState.Subscriptions.SingleOrDefault(s => s.Topic == e.ApplicationMessage.Topic);
                 if (subscription != null)
                 {
                     subscription.MessageWasReceived(e);
                 }
             });
-
 
             await client.ConnectAsync(options.Build(), CancellationToken.None);
 
@@ -114,13 +79,13 @@ namespace MqttWeb.Data
 
             await client.SubscribeAsync(topic);
 
-            this.Subscriptions.Add(subscription);
+            MqttState.AddSubscription(subscription);
             return subscription;
         }
 
         public bool IsSubscribed(string topic)
         {
-            return this.Subscriptions.Any(s => s.Topic == topic);
+            return MqttState.Subscriptions.Any(s => s.Topic == topic);
         }
 
         public async Task UnsubscribeAsync(string topic)
@@ -132,7 +97,7 @@ namespace MqttWeb.Data
             options.TopicFilters = new List<string> { topic };
             await client.UnsubscribeAsync(options);
 
-            this.Subscriptions.RemoveAll(s => s.Topic == topic);
+            MqttState.Subscriptions.RemoveAll(s => s.Topic == topic);
         }
 
         public async Task PublishAsync(string topic, string payload, int qos, bool retain)
