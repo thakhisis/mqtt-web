@@ -2,25 +2,24 @@
 @implements IDisposable
 @inject MqttState MqttState
 @inject MqttClient MqttClient
-<h1>MQTT</h1>
 
-<div><label>Host: <input @bind-value="@MqttState.Settings.Host" @bind-value:event="oninput" /></label></div>
-<div><label>Port: <input @bind-value="@MqttState.Settings.Port" @bind-value:event="oninput" /></label></div>
-<div><label>Username: <input @bind-value="@MqttState.Settings.Username" @bind-value:event="oninput" /></label></div>
-<div><label>Password: <input type="password" @bind-value="@MqttState.Settings.Password" @bind-value:event="oninput" /></label></div>
-<br />
-<div>
-    <button class="btn btn-primary" @onclick="Connect" disabled="@MqttClient.IsConnected">Connect</button>
-    <button class="btn btn-primary" @onclick="Disconnect" disabled="@(MqttClient.IsConnected == false)">Disconnect</button>
+<h3>Connect</h3>
+<div class="form">
+    <label>Host</label><input @bind-value="@MqttState.Settings.Host" @bind-value:event="oninput" />
+    <label>Port</label><input @bind-value="@MqttState.Settings.Port" @bind-value:event="oninput" />
+    <label>Username</label><input @bind-value="@MqttState.Settings.Username" @bind-value:event="oninput" />
+    <label>Password</label><input type="password" @bind-value="@MqttState.Settings.Password" @bind-value:event="oninput" />
+    @if (MqttClient.IsConnected) {
+        <label></label><button class="btn btn-primary" @onclick="Disconnect" >Disconnect</button>
+    } else {
+        <label></label><button class="btn btn-primary" @onclick="Connect" disabled="@MqttClient.IsConnected">Connect</button>
+    }
 </div>
-<hr />
 @if (MqttClient.IsConnected)
 {
     <MqttPublish />
     <MqttSubscribe />
 }
-
-
 
 <hr />
 <h3>Debug</h3>
@@ -34,40 +33,16 @@
 @functions {
 
     List<string> debugs = new List<string>();
-    List<string> messages = new List<string>();
 
-    protected override void OnInit()
-    {
-        // Subscribe to the StateChanged EventHandler
-        debugs.Add("Init'ed");
+    protected override void OnInit() => MqttState.StateChanged += OnMqttStateStateChanged;
 
-        MqttState.StateChanged += OnMqttStateAdvancedStateChanged;
+    void OnMqttStateStateChanged(object sender, EventArgs e) => base.Invoke(StateHasChanged);
+
+    async Task Connect() {
+        await MqttClient.ConnectAsync(MqttState.Settings.ClientId, MqttState.Settings.Host, MqttState.Settings.Port, MqttState.Settings.UseTls, MqttState.Settings.Username, MqttState.Settings.Password);
     }
 
-    void OnMqttStateAdvancedStateChanged(object sender, EventArgs e)
-    {
-        debugs.Add("state changed");
-        base.Invoke(StateHasChanged);
-    }
+    Task Disconnect() => MqttClient.DisconnectAsync();
 
-    void IDisposable.Dispose()
-    {
-        debugs.Add("Disposing");
-
-        // When this control is disposed of
-        // unsubscribe from the StateChanged EventHandler
-        MqttState.StateChanged -= OnMqttStateAdvancedStateChanged;
-    }
-
-    async Task Connect()
-    {
-        debugs.Add("Connecting");
-        await MqttClient.ConnectAsync(MqttState.Settings.Host, "", 0, false, "", "");
-    }
-
-    async Task Disconnect()
-    {
-        debugs.Add("Disconnecting");
-        await MqttClient.DisconnectAsync();
-    }
+    void IDisposable.Dispose() => MqttState.StateChanged -= OnMqttStateStateChanged;
 }

@@ -3,37 +3,18 @@
 @using System.Linq.Expressions
 @using MqttWeb.Data
 
-<div><label>Topic: <input @bind-value="@topic" @bind-value:event="oninput" /></label></div>
-<div>
-    <button class="btn btn-primary" @onclick="Subscribe" disabled="@(MqttClient.IsConnected == false)">Subscribe</button>
-</div>
+<h3>Subscribe</h3>
 
-@foreach (var message in messages) {
-    <div>@message</div>
-}
+<div class="form">
+    <label>Topic</label><input @bind-value="@topic" @bind-value:event="oninput" />
+    <label></label><button class="btn btn-primary" @onclick="Subscribe" disabled="@MqttState.IsSubscribedTo(topic)">Subscribe</button>
+</div>
 
 @functions {
     string topic;
-    List<string> messages;
-
-    protected override void OnInit() {
-        base.OnInit();
-        messages = new List<string>();
-    }
 
     async Task Subscribe() {
         if (string.IsNullOrEmpty(topic)) return;
         var subscription = await MqttClient.SubscribeAsync(this.topic);
-        
-        subscription.MessageReceived += (o, s) => {
-            this.messages.Add(s.ApplicationMessage.Topic); 
-            StateChanged();
-        };
-
-        StateHasChanged();
-    }
-
-    void StateChanged() {
-        base.Invoke(StateHasChanged);
     }
 } 

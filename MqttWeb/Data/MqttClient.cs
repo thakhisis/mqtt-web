@@ -22,21 +22,18 @@ namespace MqttWeb.Data
 
         public MqttState MqttState { get; }
         public MQTTnet.Client.IMqttClient client;
-
         public bool IsConnected => this.client != null && this.client.IsConnected;
-
-        public event EventHandler StateChanged;
 
         public async Task ConnectAsync(string clientId, string host, int port, bool tls, string username, string password)
         {
 
-            this.MqttState.AddMessage("connecting");
+            this.MqttState.AddMessage($"connecting to {MqttState.Settings.Host}");
             var options = new MqttClientOptionsBuilder()
-                .WithClientId("mqttweb")
-                .WithTcpServer("localhost", 1883)
+                .WithClientId(clientId)
+                .WithTcpServer(host, port)
                 .WithCleanSession();
 
-            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+            if (!string.IsNullOrEmpty(username))
                 options = options.WithCredentials(username, password);
 
             if (tls)
@@ -44,28 +41,32 @@ namespace MqttWeb.Data
 
             client = new MqttFactory().CreateMqttClient();
 
-            client.UseConnectedHandler(async e => {
+            client.UseConnectedHandler(e => {
                 this.MqttState.AddMessage("Connected");
-                await client.SubscribeAsync(new TopicFilterBuilder().WithTopic("/testreturn").Build());
-                this.MqttState.AddMessage("Subscribed");
             });
 
             client.UseDisconnectedHandler(e => {
                 this.MqttState.AddMessage("Disconnected");
             });
 
-
             client.UseApplicationMessageReceivedHandler(e =>
             {
                 var subscription = MqttState.Subscriptions.SingleOrDefault(s => s.Topic == e.ApplicationMessage.Topic);
                 if (subscription != null)
                 {
-                    subscription.MessageWasReceived(e);
+                    subscription.AddMessage(
+                        new MqttSubscriptionMessage(
+                            e.ApplicationMessage.Topic, 
+                            Encoding.Default.GetString(e.ApplicationMessage.Payload), 
+                            DateTime.Now)
+                        );
                 }
             });
 
-            await client.ConnectAsync(options.Build(), CancellationToken.None);
-
+            var result = await client.ConnectAsync(options.Build(), CancellationToken.None);
+            if (result.ResultCode != MQTTnet.Client.Connecting.MqttClientConnectResultCode.Success) {
+                this.MqttState.AddMessage("Error: " + result.ReasonString);
+            }
         }
 
         public async Task DisconnectAsync()
@@ -97,7 +98,7 @@ namespace MqttWeb.Data
             options.TopicFilters = new List<string> { topic };
             await client.UnsubscribeAsync(options);
 
-            MqttState.Subscriptions.RemoveAll(s => s.Topic == topic);
+            MqttState.RemoveSubscription(s => s.Topic == topic);
         }
 
         public async Task PublishAsync(string topic, string payload, int qos, bool retain)

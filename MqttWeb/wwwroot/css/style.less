@@ -1,0 +1,24 @@
+@color: red;
+
+.form {
+    width: 50%;
+    margin: 0 0;
+    
+    label, input {
+        /* in order to define widths */
+        display: inline-block;
+    }
+
+    label {
+        width: 30%;
+        /* positions the label text beside the input */
+        text-align: right;
+    }
+
+    label + input, label + button, label + textarea {
+        width: 30%;
+        /* large margin-right to force the next element to the new-line
+           and margin-left to create a gutter between the label and input */
+        margin: 0 30% 0 4%;
+    }
+}

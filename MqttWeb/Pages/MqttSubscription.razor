@@ -1,0 +1,30 @@
+@page "/subscription/{topic}"
+@using System.Linq
+@inject MqttState MqttState
+@inject IUriHelper UriHelper
+
+<h3>Messages @(subscription != null ? subscription.Topic : "")</h3>
+@if (subscription != null)
+{
+    @foreach (var message in subscription.Messages) 
+    {
+        <div>@message.Received: @message.Payload</div>
+    }
+}
+
+@functions { 
+    MqttWeb.Data.MqttSubscription subscription;
+
+    [Parameter] private string topic { get; set; } 
+
+    protected override void OnInit() {
+
+        var subscriptions = MqttState.Subscriptions.Where(s => s.UrlSafeTopic == topic);
+
+        if (subscriptions.Count() != 1) {
+            UriHelper.NavigateTo("/mqtt");
+        }
+
+        subscription = subscriptions.Single();
+    }
+}

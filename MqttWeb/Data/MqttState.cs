@@ -11,30 +11,37 @@ namespace MqttWeb.Data
         public MqttConnectionSettings Settings { get; set; } = new MqttConnectionSettings();
         public event EventHandler StateChanged;
 
-        public List<MqttSubscription> Subscriptions { get; set; } = new List<MqttSubscription>();
+        private List<MqttSubscription> _subscriptions { get; set; } = new List<MqttSubscription>();
+        public IEnumerable<MqttSubscription> Subscriptions => _subscriptions.AsEnumerable();
         
+
+
         public void AddSubscription(MqttSubscription subscription) 
         {
-            this.Subscriptions.Add(subscription);
+            subscription.MessageReceived += (o, s) => StateHasChanged();
+
+            this._subscriptions.Add(subscription);
+
             StateHasChanged();
         }
+
+        public void RemoveSubscription(Predicate<MqttSubscription> query)
+        {
+            this._subscriptions.RemoveAll(query);
+        }
+
+        public bool IsSubscribedTo(string topic) => this._subscriptions.Any(s => s.Topic == topic);
+
 
         public List<string> Messages { get; set; } = new List<string>() {  };
-        public List<string> Errors { get; set; } = new List<string>() {  };
 
-        public void AddMessage(string message)
+        public void AddMessage(string message) 
         {
             this.Messages.Add(message);
-            StateHasChanged();
+            this.StateHasChanged();
         }
 
-        public void AddError(string error)
-        {
-            this.Errors.Add(error);
-            StateHasChanged();
-        }
-
-        private void StateHasChanged()
+        public void StateHasChanged()
         {
             StateChanged?.Invoke(this, EventArgs.Empty);
         }

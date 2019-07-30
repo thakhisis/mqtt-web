@@ -1,10 +1,10 @@
 namespace MqttWeb.Data
 {
     public class MqttConnectionSettings {
-        public string Host { get; set; } = "localhost";
         public string ClientId { get; set; } = "mac";
+        public string Host { get; set; } = "localhost";
         public int Port { get; set; } = 1883;
-        public int QoS { get; set; } = 2;
+        public bool UseTls { get; set; } = false;
         public string Username { get; set; } = null;
         public string Password { get; set; } = null;
     }
