@@ -1,48 +1,18 @@
 ﻿@page "/mqtt"
-@implements IDisposable
 @inject MqttState MqttState
-@inject MqttClient MqttClient
 
-<h3>Connect</h3>
-<div class="form">
-    <label>Host</label><input @bind-value="@MqttState.Settings.Host" @bind-value:event="oninput" />
-    <label>Port</label><input @bind-value="@MqttState.Settings.Port" @bind-value:event="oninput" />
-    <label>Username</label><input @bind-value="@MqttState.Settings.Username" @bind-value:event="oninput" />
-    <label>Password</label><input type="password" @bind-value="@MqttState.Settings.Password" @bind-value:event="oninput" />
-    @if (MqttClient.IsConnected) {
-        <label></label><button class="btn btn-primary" @onclick="Disconnect" >Disconnect</button>
-    } else {
-        <label></label><button class="btn btn-primary" @onclick="Connect" disabled="@MqttClient.IsConnected">Connect</button>
-    }
-</div>
-@if (MqttClient.IsConnected)
+<MqttConnect />
+
+@if (MqttState.IsConnected)
 {
     <MqttPublish />
     <MqttSubscribe />
 }
 
-<hr />
-<h3>Debug</h3>
-@foreach (var debug in debugs)
-{
-    <div>@debug</div>
-}
 
-<span>@MqttState.Settings.Host</span>
-
-@functions {
-
-    List<string> debugs = new List<string>();
-
-    protected override void OnInit() => MqttState.StateChanged += OnMqttStateStateChanged;
-
-    void OnMqttStateStateChanged(object sender, EventArgs e) => base.Invoke(StateHasChanged);
-
-    async Task Connect() {
-        await MqttClient.ConnectAsync(MqttState.Settings.ClientId, MqttState.Settings.Host, MqttState.Settings.Port, MqttState.Settings.UseTls, MqttState.Settings.Username, MqttState.Settings.Password);
+@code {
+    protected override void OnInit() 
+    {
+        MqttState.StateChanged += (o,s) => base.Invoke(StateHasChanged);
     }
-
-    Task Disconnect() => MqttClient.DisconnectAsync();
-
-    void IDisposable.Dispose() => MqttState.StateChanged -= OnMqttStateStateChanged;
 }

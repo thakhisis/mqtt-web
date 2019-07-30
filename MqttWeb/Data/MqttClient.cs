@@ -22,7 +22,6 @@ namespace MqttWeb.Data
 
         public MqttState MqttState { get; }
         public MQTTnet.Client.IMqttClient client;
-        public bool IsConnected => this.client != null && this.client.IsConnected;
 
         public async Task ConnectAsync(string clientId, string host, int port, bool tls, string username, string password)
         {
@@ -43,10 +42,12 @@ namespace MqttWeb.Data
 
             client.UseConnectedHandler(e => {
                 this.MqttState.AddMessage("Connected");
+                MqttState.SetConnected(true);
             });
 
             client.UseDisconnectedHandler(e => {
                 this.MqttState.AddMessage("Disconnected");
+                MqttState.SetConnected(false);
             });
 
             client.UseApplicationMessageReceivedHandler(e =>

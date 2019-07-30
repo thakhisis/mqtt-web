@@ -1,0 +1,26 @@
+@inject MqttState MqttState
+@inject MqttClient MqttClient
+@using System.Linq.Expressions
+@using MqttWeb.Data
+
+<h3>Connect</h3>
+<div class="form">
+    <label>Host</label><input @bind-value="@MqttState.Settings.Host" @bind-value:event="oninput" />
+    <label>Port</label><input @bind-value="@MqttState.Settings.Port" @bind-value:event="oninput" />
+    <label>Username</label><input @bind-value="@MqttState.Settings.Username" @bind-value:event="oninput" />
+    <label>Password</label><input type="password" @bind-value="@MqttState.Settings.Password" @bind-value:event="oninput" />
+    @if (MqttState.IsConnected) {
+        <label></label><button class="btn btn-primary" @onclick="Disconnect" >Disconnect</button>
+    } else {
+        <label></label><button class="btn btn-primary" @onclick="Connect">Connect</button>
+    }
+</div>
+
+@functions {
+    async Task Connect() {
+        await MqttClient.ConnectAsync(MqttState.Settings.ClientId, MqttState.Settings.Host, MqttState.Settings.Port, MqttState.Settings.UseTls, MqttState.Settings.Username, MqttState.Settings.Password);
+    }
+
+    Task Disconnect() => MqttClient.DisconnectAsync();
+
+} 

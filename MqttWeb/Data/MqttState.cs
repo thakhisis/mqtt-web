@@ -14,7 +14,12 @@ namespace MqttWeb.Data
         private List<MqttSubscription> _subscriptions { get; set; } = new List<MqttSubscription>();
         public IEnumerable<MqttSubscription> Subscriptions => _subscriptions.AsEnumerable();
         
-
+        public bool IsConnected { get; private set; }
+        public void SetConnected(bool connected) 
+        {
+            this.IsConnected = connected;
+            this.StateHasChanged();
+        }
 
         public void AddSubscription(MqttSubscription subscription) 
         {

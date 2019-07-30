@@ -8,7 +8,7 @@
     <label>Payload</label><textarea @bind-value="@payload" @bind-value:event="oninput" ></textarea>
     <label>Quality of Service</label><input @bind-value="@qos" @bind-value:event="oninput" />
     <label>Retain</label><input @bind-value="@retain" @bind-value:event="oninput" />
-    <label></label><button class="btn btn-primary" @onclick="PublishAsync" disabled="@(MqttClient.IsConnected == false)">Publish</button>
+    <label></label><button class="btn btn-primary" @onclick="PublishAsync" disabled="@(MqttState.IsConnected == false)">Publish</button>
 </div>
 
 @functions {
