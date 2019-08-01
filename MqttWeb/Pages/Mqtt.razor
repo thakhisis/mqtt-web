@@ -1,5 +1,6 @@
 ﻿@page "/mqtt"
 @inject MqttState MqttState
+@inject MqttService MqttService
 
 <MqttConnect />
 
@@ -9,10 +10,27 @@
     <MqttSubscribe />
 }
 
+@if (configurations != null) 
+{
+    foreach (var conf in configurations) 
+    {
+        <div>@conf.Id @conf.Name</div>
+    }
+}
+<button class="btn btn-primary" @onclick="AddConfiguration">AddConfiguration</button>
 
-@code {
-    protected override void OnInit() 
+@functions {
+    IEnumerable<Services.MqttConfiguration> configurations;
+
+    protected override async Task OnInitAsync() 
     {
         MqttState.StateChanged += (o,s) => base.Invoke(StateHasChanged);
+        configurations = await MqttService.GetConfigurations();
     }
+
+    async Task AddConfiguration() 
+    {
+        await MqttService.AddConfiguration("Testname", "mqtt.delphas.dk", 1883, false);
+    }
+
 }

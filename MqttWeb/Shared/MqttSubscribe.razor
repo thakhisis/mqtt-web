@@ -1,5 +1,5 @@
 @inject MqttState MqttState
-@inject MqttClient MqttClient
+@inject MqttService MqttService
 @using System.Linq.Expressions
 @using MqttWeb.Data
 
@@ -15,6 +15,6 @@
 
     async Task Subscribe() {
         if (string.IsNullOrEmpty(topic)) return;
-        var subscription = await MqttClient.SubscribeAsync(this.topic);
+        var subscription = await MqttService.SubscribeAsync(this.topic);
     }
 } 

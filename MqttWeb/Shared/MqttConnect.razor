@@ -1,5 +1,5 @@
 @inject MqttState MqttState
-@inject MqttClient MqttClient
+@inject MqttService MqttService
 @using System.Linq.Expressions
 @using MqttWeb.Data
 
@@ -18,9 +18,9 @@
 
 @functions {
     async Task Connect() {
-        await MqttClient.ConnectAsync(MqttState.Settings.ClientId, MqttState.Settings.Host, MqttState.Settings.Port, MqttState.Settings.UseTls, MqttState.Settings.Username, MqttState.Settings.Password);
+        await MqttService.ConnectAsync(MqttState.Settings.ClientId, MqttState.Settings.Host, MqttState.Settings.Port, MqttState.Settings.UseTls, MqttState.Settings.Username, MqttState.Settings.Password);
     }
 
-    Task Disconnect() => MqttClient.DisconnectAsync();
+    Task Disconnect() => MqttService.DisconnectAsync();
 
 } 

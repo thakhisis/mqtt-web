@@ -1,4 +1,4 @@
-namespace MqttWeb.Data
+namespace MqttWeb.Services
 {
     public class MqttConnectionSettings {
         public string ClientId { get; set; } = "mac";

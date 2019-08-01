@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MqttWeb.Data;
 
-namespace MqttWeb.Data
+namespace MqttWeb.Services
 {
     public class MqttState
     {

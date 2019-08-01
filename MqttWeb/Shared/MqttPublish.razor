@@ -1,5 +1,5 @@
 @inject MqttState MqttState
-@inject MqttClient MqttClient
+@inject MqttService MqttService
 
 <h3>Publish</h3>
 
@@ -18,6 +18,6 @@
     bool retain;
 
     async Task PublishAsync() {
-        await MqttClient.PublishAsync(topic, payload, qos, retain);
+        await MqttService.PublishAsync(topic, payload, qos, retain);
     }
 } 

@@ -1,6 +1,6 @@
 using System;
 
-namespace MqttWeb.Data
+namespace MqttWeb.Services
 {
     public class MqttSubscriptionMessage {
         public MqttSubscriptionMessage(string topic, string payload, DateTime received) {

@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+using MqttWeb.Services;
 using MqttWeb.Data;
 
 namespace MqttWeb
@@ -29,7 +31,10 @@ namespace MqttWeb
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<MqttState>();
-            services.AddScoped<MqttClient>();
+            services.AddScoped<MqttService>();
+            services.AddDbContext<MqttContext>(options => options.UseSqlite("Data Source=mqtt.db"));
+            services.AddScoped<MqttContextFactory>();
+            services.AddScoped<MqttConfigurationRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
