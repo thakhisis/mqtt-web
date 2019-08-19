@@ -17,9 +17,12 @@ Hvad er korrekt måde hvis man skal opdatere 'random' komponenter på baggrund a
 ## Todo
 - Functionality 
   - ~~Subscribed topics should be displayed in the navmenu for easy navigation~~
+- Infrastructure
+  - Create components for some of the elements: select, input
+  - Create TemplateedComponents for some of the elements: List, Dialog
 - Database
-  - Create local database (mqtt.db)
-  - Create tables for saving (connection) configurations
+  - ~~Create local database (mqtt.db)~~
+  - Create tables for saving (connection) configurations	
   - Create table(s) for saving currently subscribed topics in order to re-subscribe (on per configuration basis)
 - UI
   - Drop down select of QoS items

@@ -22,9 +22,9 @@
 @functions {
     IEnumerable<Services.MqttConfiguration> configurations;
 
-    protected override async Task OnInitAsync() 
+    protected override async Task OnInitializedAsync() 
     {
-        MqttState.StateChanged += (o,s) => base.Invoke(StateHasChanged);
+        MqttState.StateChanged += (o,s) => base.InvokeAsync(StateHasChanged);
         configurations = await MqttService.GetConfigurations();
     }
 

@@ -1,0 +1,54 @@
+﻿@page "/configuration"
+@inject MqttState MqttState
+@inject MqttService MqttService
+
+@if (configurations != null)
+{
+    <select @bind="@selectedId">
+        <option selected>--- Configurations ---</option>
+        @foreach (var conf in configurations)
+        {
+            <option value="@conf.Id">@conf.Name</option>
+        }
+        <option value="@Guid.Empty">New...</option>
+    </select>
+}
+
+hgrgre
+<div>Host: <span>@(selectedConfiguration != null ? selectedConfiguration.Host : "")</span></div>
+<div>Debug: <span>@debug</span></div>
+<div>Random: <span>@selectedId</span></div>
+<div>Is new: <span>@(selectedId == Guid.Empty ? "Yes" : "No")</span></div>
+
+<button class="btn btn-primary" @onclick="AddConfiguration">Add configuration</button>
+<button class="btn" @onclick="TestConfiguration">Test</button>
+
+@functions {
+        IEnumerable<Services.MqttConfiguration> configurations;
+        Guid? _selectedId { get; set; } = null;
+        Guid? selectedId { get { return _selectedId; } set { _selectedId = value; selectedConfiguration = configurations.FirstOrDefault(c => c.Id == value); } }
+        Services.MqttConfiguration selectedConfiguration;
+        string debug { get; set; } = "debugs here:";
+
+    protected override async Task OnInitializedAsync()
+    {
+        MqttState.StateChanged += (o, s) => base.InvokeAsync(StateHasChanged);
+        configurations = await MqttService.GetConfigurations();
+    }
+
+    async Task AddConfiguration()
+    {
+        await MqttService.AddConfiguration("Testname", "mqtt.delphas.dk", 1883, false);
+    }
+
+    async Task ConfigurationSelectionChanged()
+    {
+        debug += "changed";
+    }
+
+    async Task TestConfiguration()
+    {
+
+    }
+
+}

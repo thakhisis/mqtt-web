@@ -17,7 +17,7 @@
 
     [Parameter] private string topic { get; set; } 
 
-    protected override void OnInit() {
+    protected override void OnInitialized() {
 
         var subscriptions = MqttState.Subscriptions.Where(s => s.UrlSafeTopic == topic);
 
