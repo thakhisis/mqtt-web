@@ -19,7 +19,7 @@ namespace MqttWeb
             var host = CreateHostBuilder(args).Build();
             
             // Initialize the database
-            var scopeFactory = host.Services.GetRequiredService<IServiceScopeFactory>();
+            /*var scopeFactory = host.Services.GetRequiredService<IServiceScopeFactory>();
             using (var scope = scopeFactory.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<MqttWeb.Data.MqttContext>();
@@ -28,7 +28,7 @@ namespace MqttWeb
                     Data.SeedData.Initialize(db);
                 }
             }
-            
+            */
             host.Run();
         }
 

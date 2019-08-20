@@ -15,7 +15,8 @@
                 <option value>New...</option>
             </select>
         }
-
+        
+        <label>Name</label><input class="form-control" @bind-value="@selectedConfiguration.Name" @bind-value:event="oninput" />
         <label>Client Id</label><input class="form-control" @bind-value="@selectedConfiguration.ClientId" @bind-value:event="oninput" />
         <label>Host</label><input class="form-control" @bind-value="@selectedConfiguration.Host" @bind-value:event="oninput" />
         <label>Port</label><input class="form-control" @bind-value="@selectedConfiguration.Port" @bind-value:event="oninput" />
@@ -36,19 +37,15 @@
 
 
         <div>Host: <span>@(selectedConfiguration != null ? selectedConfiguration?.Host : "")</span></div>
-        <div>Debug: <span>@debug</span></div>
         @*<div>Random: <span>@selectedId</span></div>
         <div>Is new: <span>@(selectedId == Guid.Empty ? "Yes" : "No")</span></div>*@
     </div>
 
 
-@code {
+@functions {
 
     IEnumerable<Services.MqttConfiguration> configurations;
-    //Guid? _selectedId { get; set; } = null;
-    //Guid? selectedId { get { return _selectedId; } set { _selectedId = value; selectedConfiguration = value == null ? null : configurations.FirstOrDefault(c => c.Id == value) ?? new MqttConfiguration { Port = 1883, Tls = false, ClientId = Guid.NewGuid().ToString().Substring(0, 6) }; } }
     Services.MqttConfiguration selectedConfiguration = new MqttConfiguration();
-    string debug { get; set; } = "debugs here:";
 
     protected override async Task OnInitializedAsync()
     {
@@ -69,6 +66,7 @@
 
     async Task UpdateConfiguration()
     {
+        await MqttService.UpdateConfiguration(selectedConfiguration);
     }
 
     async Task DeleteConfiguration()

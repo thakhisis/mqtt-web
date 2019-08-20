@@ -1,17 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
 using MqttWeb.Services;
 using MqttWeb.Data;
+using FluentMigrator;
+using FluentMigrator.Runner;
+using FluentMigrator.Runner.Initialization;
+using Dapper;
+using Dapper.Contrib.Extensions;
 
 namespace MqttWeb
 {
@@ -30,15 +28,30 @@ namespace MqttWeb
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddSingleton<IDbConnectionFactory, MqttDbConnectionFactory>(provider => new MqttDbConnectionFactory("Data Source=mqtt.db"));
             services.AddScoped<MqttState>();
             services.AddScoped<MqttService>();
-            services.AddDbContext<MqttContext>(options => options.UseSqlite("Data Source=mqtt.db"));
-            services.AddScoped<MqttContextFactory>();
-            services.AddScoped<MqttConfigurationRepository>();
+            //services.AddDbContext<MqttContext>(options => options.UseSqlite("Data Source=mqtt.db"));
+            //services.AddScoped<MqttContextFactory>();
+
+            services.AddTransient<MqttConfigurationRepository>();
+
+                        //Setup data migrations 
+            services.AddFluentMigratorCore()
+                .ConfigureRunner(rb => rb
+                    // Add SQLite support to FluentMigrator
+                    .AddSQLite()
+                    // Set the connection string
+                    .WithGlobalConnectionString("Data Source=mqtt.db")
+                    // Define the assemblies containing the migrations
+                    .ScanIn(typeof(MqttWeb.Data.Migrations.Initial).Assembly).For.Migrations()
+                ).AddLogging(lb => lb
+                    .AddFluentMigratorConsole());
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IMigrationRunner migrationRunner, IDbConnectionFactory factory)
         {
             if (env.IsDevelopment())
             {
@@ -61,6 +74,9 @@ namespace MqttWeb
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
+
+            // Run database migrations 
+            migrationRunner.MigrateUp();
         }
     }
 }

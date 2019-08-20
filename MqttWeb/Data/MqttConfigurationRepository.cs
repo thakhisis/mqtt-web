@@ -1,33 +1,36 @@
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+using Dapper;
+using MqttWeb.Data.Models;
 
-namespace MqttWeb.Data
-{
-    public class MqttConfigurationRepository : MqttClient
+namespace MqttWeb.Data {
+    public class MqttConfigurationRepository //: MqttClient
     {
+        private readonly IDbConnectionFactory dbConnectionFactory;
 
-        public MqttConfigurationRepository(MqttContextFactory contextFactory) : base(contextFactory)
-        {
+        public MqttConfigurationRepository (IDbConnectionFactory dbConnectionFactory) {
+            this.dbConnectionFactory = dbConnectionFactory;
         }
- 
-        public async Task Create(string name, string host, int port, bool tls, string username, string password) 
-        {
 
-            var id = Guid.NewGuid();
-            using (var conn = base.contextFactory.Create()) {
-                await conn.Configurations.AddAsync(new MqttConfiguration() { Id = id, Name = name, Host = host, Port = port, Tls = tls, Username = username, Password = password});
-                await conn.SaveChangesAsync();
+        public async Task Create (string name, string clientId, string host, int port, bool tls, string username, string password) {
+
+            var id = Guid.NewGuid ();
+            using (var conn = this.dbConnectionFactory.Create()) {
+                await conn.ExecuteAsync($@"INSERT INTO [Configuration] (Id, Name, ClientId, Host, Port, Tls, Username, Password) VALUES
+                    (@{nameof(id)}, @{nameof(name)}, @{nameof(clientId)}, @{nameof(host)}, @{nameof(port)}, @{nameof(tls)}, @{nameof(username)}, @{nameof(password)})", 
+                    new { id, name, clientId, host, port, tls, username, password });
             }
         }
 
-        public async Task<IEnumerable<MqttConfiguration>> GetAll()
-        {
-            using (var conn = base.contextFactory.Create())
-                return await conn.Configurations.ToListAsync();
+        public async Task Update (Guid id, string name, string host, int port, bool tls, string username, string password) {
+
+        }
+
+        public async Task<IEnumerable<MqttConfiguration>> GetAll () {
+            using (var conn = this.dbConnectionFactory.Create ())
+                return await conn.QueryAsync<MqttConfiguration>("SELECT c.* FROM [Configuration] c", new { });
         }
     }
 }
