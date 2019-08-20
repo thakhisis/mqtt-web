@@ -5,22 +5,36 @@
 
 <h3>Connect</h3>
 <div class="form">
-    <label>Host</label><input @bind-value="@MqttState.Settings.Host" @bind-value:event="oninput" />
-    <label>Port</label><input @bind-value="@MqttState.Settings.Port" @bind-value:event="oninput" />
-    <label>Username</label><input @bind-value="@MqttState.Settings.Username" @bind-value:event="oninput" />
-    <label>Password</label><input type="password" @bind-value="@MqttState.Settings.Password" @bind-value:event="oninput" />
-    @if (MqttState.IsConnected) {
-        <label></label><button class="btn btn-primary" @onclick="Disconnect" >Disconnect</button>
-    } else {
-        <label></label><button class="btn btn-primary" @onclick="Connect">Connect</button>
+    @if (configurations != null)
+    {
+        <select class="form-control" @bind="@selectedConfiguration">
+            @foreach (var c in configurations)
+            {
+                <option value="@c.Id">@c.Name (@c.Host)</option>
+            }
+        </select>
     }
 </div>
 
 @functions {
+    IEnumerable<Services.MqttConfiguration> configurations;
+    Services.MqttConfiguration _selectedConfiguration;
+    Services.MqttConfiguration selectedConfiguration
+    {
+        get { return _selectedConfiguration; }
+        set { _selectedConfiguration = value; }
+    }
+
     async Task Connect() {
-        await MqttService.ConnectAsync(MqttState.Settings.ClientId, MqttState.Settings.Host, MqttState.Settings.Port, MqttState.Settings.UseTls, MqttState.Settings.Username, MqttState.Settings.Password);
+        await MqttService.ConnectAsync(selectedConfiguration.ClientId, selectedConfiguration.Host, selectedConfiguration.Port, selectedConfiguration.Tls, selectedConfiguration.Username, selectedConfiguration.Password);
     }
 
     Task Disconnect() => MqttService.DisconnectAsync();
+
+    protected override async Task OnInitializedAsync() 
+    {
+        MqttState.StateChanged += (o,s) => base.InvokeAsync(StateHasChanged);
+        configurations = await MqttService.GetConfigurations();
+    }
 
 } 

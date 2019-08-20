@@ -2,33 +2,53 @@
 @inject MqttState MqttState
 @inject MqttService MqttService
 
-@if (configurations != null)
-{
-    <select @bind="@selectedId">
-        <option selected>--- Configurations ---</option>
-        @foreach (var conf in configurations)
+    <div class="form">
+        @if (configurations != null)
         {
-            <option value="@conf.Id">@conf.Name</option>
+            <label />
+            <select @onchange="@ConfigurationChanged" class="form-control">
+                <option selected="selected">--- Configurations ---</option>
+                @foreach (var conf in configurations)
+                {
+                    <option value="@conf.Id">@conf.Name</option>
+                }
+                <option value>New...</option>
+            </select>
         }
-        <option value="@Guid.Empty">New...</option>
-    </select>
-}
 
-hgrgre
-<div>Host: <span>@(selectedConfiguration != null ? selectedConfiguration.Host : "")</span></div>
-<div>Debug: <span>@debug</span></div>
-<div>Random: <span>@selectedId</span></div>
-<div>Is new: <span>@(selectedId == Guid.Empty ? "Yes" : "No")</span></div>
+        <label>Client Id</label><input class="form-control" @bind-value="@selectedConfiguration.ClientId" @bind-value:event="oninput" />
+        <label>Host</label><input class="form-control" @bind-value="@selectedConfiguration.Host" @bind-value:event="oninput" />
+        <label>Port</label><input class="form-control" @bind-value="@selectedConfiguration.Port" @bind-value:event="oninput" />
+        <label>Username</label><input class="form-control" @bind-value="@selectedConfiguration.Username" @bind-value:event="oninput" />
+        <label>Password</label><input class="form-control" type="password" @bind-value="@selectedConfiguration.Password" @bind-value:event="oninput" />
 
-<button class="btn btn-primary" @onclick="AddConfiguration">Add configuration</button>
-<button class="btn" @onclick="TestConfiguration">Test</button>
+        @if (selectedConfiguration?.Id == null)
+        {
+            <label></label><button class="btn btn-primary" @onclick="CreateConfiguration">Add</button>
+        }
+        else
+        {
+            <label></label><button class="btn btn-primary" @onclick="UpdateConfiguration">Update</button>
+            <label></label><button class="btn btn-secondary" @onclick="DeleteConfiguration">Remove</button>
+        }
 
-@functions {
-        IEnumerable<Services.MqttConfiguration> configurations;
-        Guid? _selectedId { get; set; } = null;
-        Guid? selectedId { get { return _selectedId; } set { _selectedId = value; selectedConfiguration = configurations.FirstOrDefault(c => c.Id == value); } }
-        Services.MqttConfiguration selectedConfiguration;
-        string debug { get; set; } = "debugs here:";
+        <label></label><button class="btn btn-secondary" @onclick="TestConfiguration">Test</button>
+
+
+        <div>Host: <span>@(selectedConfiguration != null ? selectedConfiguration?.Host : "")</span></div>
+        <div>Debug: <span>@debug</span></div>
+        @*<div>Random: <span>@selectedId</span></div>
+        <div>Is new: <span>@(selectedId == Guid.Empty ? "Yes" : "No")</span></div>*@
+    </div>
+
+
+@code {
+
+    IEnumerable<Services.MqttConfiguration> configurations;
+    //Guid? _selectedId { get; set; } = null;
+    //Guid? selectedId { get { return _selectedId; } set { _selectedId = value; selectedConfiguration = value == null ? null : configurations.FirstOrDefault(c => c.Id == value) ?? new MqttConfiguration { Port = 1883, Tls = false, ClientId = Guid.NewGuid().ToString().Substring(0, 6) }; } }
+    Services.MqttConfiguration selectedConfiguration = new MqttConfiguration();
+    string debug { get; set; } = "debugs here:";
 
     protected override async Task OnInitializedAsync()
     {
@@ -36,19 +56,33 @@ hgrgre
         configurations = await MqttService.GetConfigurations();
     }
 
-    async Task AddConfiguration()
+    protected async void ConfigurationChanged(UIChangeEventArgs configurationChangedEventArgs)
     {
-        await MqttService.AddConfiguration("Testname", "mqtt.delphas.dk", 1883, false);
+        selectedConfiguration = this.configurations.FirstOrDefault(c => c.Id.ToString() == configurationChangedEventArgs.Value.ToString()) ?? new MqttConfiguration();
+        this.StateHasChanged();
+    }
+
+    async Task CreateConfiguration()
+    {
+        await MqttService.CreateConfiguration(selectedConfiguration);
+    }
+
+    async Task UpdateConfiguration()
+    {
+    }
+
+    async Task DeleteConfiguration()
+    {
     }
 
     async Task ConfigurationSelectionChanged()
     {
-        debug += "changed";
     }
 
     async Task TestConfiguration()
     {
 
     }
+
 
 }

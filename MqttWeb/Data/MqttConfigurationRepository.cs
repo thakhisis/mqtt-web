@@ -14,15 +14,14 @@ namespace MqttWeb.Data
         {
         }
  
-        public async Task Create(string name, string host, int port, bool tls) 
+        public async Task Create(string name, string host, int port, bool tls, string username, string password) 
         {
 
             var id = Guid.NewGuid();
             using (var conn = base.contextFactory.Create()) {
-                await conn.Configurations.AddAsync(new MqttConfiguration() { Id = id, Name = name, Host = host, Port = port, Tls = tls });
+                await conn.Configurations.AddAsync(new MqttConfiguration() { Id = id, Name = name, Host = host, Port = port, Tls = tls, Username = username, Password = password});
                 await conn.SaveChangesAsync();
             }
-            
         }
 
         public async Task<IEnumerable<MqttConfiguration>> GetAll()

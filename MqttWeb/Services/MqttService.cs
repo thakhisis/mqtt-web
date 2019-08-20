@@ -26,20 +26,20 @@ namespace MqttWeb.Services
         public MQTTnet.Client.IMqttClient client;
         private readonly MqttConfigurationRepository configurationRepository;
 
-        public async Task AddConfiguration(string name, string host, int port, bool tls) {
-            await this.configurationRepository.Create(name, host, port, tls);
+        public async Task CreateConfiguration(MqttConfiguration configuration) {
+            await this.configurationRepository.Create(configuration.Name, configuration.Host, configuration.Port, configuration.Tls, configuration.Username, configuration.Password);
         }
 
         public async Task<IEnumerable<Services.MqttConfiguration>> GetConfigurations()
         {
             
-            return (await this.configurationRepository.GetAll()).Select(mc => new Services.MqttConfiguration(mc.Id, mc.Name, mc.Host, mc.Port, mc.Tls));
+            return (await this.configurationRepository.GetAll()).Select(mc => new Services.MqttConfiguration { Id = mc.Id, Name = mc.Name, Host = mc.Host, Port = mc.Port, Tls = mc.Tls });
         }
 
         public async Task ConnectAsync(string clientId, string host, int port, bool tls, string username, string password)
         {
 
-            this.mqttState.AddMessage($"connecting to {mqttState.Settings.Host}");
+            this.mqttState.AddMessage($"connecting to {host}");
             var options = new MqttClientOptionsBuilder()
                 .WithClientId(clientId)
                 .WithTcpServer(host, port)
