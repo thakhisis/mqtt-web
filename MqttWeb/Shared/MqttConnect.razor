@@ -1,5 +1,6 @@
 @inject MqttState MqttState
 @inject MqttService MqttService
+@inject MqttConfigurationRepository ConfigurationRepository
 @using System.Linq.Expressions
 @using MqttWeb.Data
 
@@ -7,34 +8,54 @@
 <div class="form">
     @if (configurations != null)
     {
-        <select class="form-control" @bind="@selectedConfiguration">
-            @foreach (var c in configurations)
+        <label />
+        <select @onchange="@ConfigurationChanged" class="form-control">
+            @foreach (var conf in configurations)
             {
-                <option value="@c.Id">@c.Name (@c.Host)</option>
+                <option value="@conf.Id">@conf.Name</option>
             }
         </select>
+    }
+    @if (MqttState.IsConnected)
+    {
+        <label></label><button class="btn btn-primary" @onclick="Disconnect">Disconnect</button>
+    }
+    else
+    {
+        <label></label><button class="btn btn-primary" @onclick="Connect">Connect</button>
     }
 </div>
 
 @functions {
-    IEnumerable<Services.MqttConfiguration> configurations;
-    Services.MqttConfiguration _selectedConfiguration;
-    Services.MqttConfiguration selectedConfiguration
+    IEnumerable<MqttConfiguration> configurations;
+    MqttConfiguration _selectedConfiguration;
+    MqttConfiguration selectedConfiguration
     {
         get { return _selectedConfiguration; }
         set { _selectedConfiguration = value; }
     }
 
-    async Task Connect() {
-        await MqttService.ConnectAsync(selectedConfiguration.ClientId, selectedConfiguration.Host, selectedConfiguration.Port, selectedConfiguration.Tls, selectedConfiguration.Username, selectedConfiguration.Password);
-    }
+    Task Connect() => MqttService.ConnectAsync(
+        selectedConfiguration.ClientId, 
+        selectedConfiguration.Host, 
+        selectedConfiguration.Port, 
+        selectedConfiguration.Tls, 
+        selectedConfiguration.Username, 
+        selectedConfiguration.Password);
 
     Task Disconnect() => MqttService.DisconnectAsync();
 
     protected override async Task OnInitializedAsync() 
     {
         MqttState.StateChanged += (o,s) => base.InvokeAsync(StateHasChanged);
-        configurations = await MqttService.GetConfigurations();
+        configurations = await ConfigurationRepository.GetAll();
+        selectedConfiguration = configurations.FirstOrDefault();
+    }
+    
+    protected async void ConfigurationChanged(UIChangeEventArgs configurationChangedEventArgs)
+    {
+        selectedConfiguration = this.configurations.FirstOrDefault(c => c.Id.ToString() == configurationChangedEventArgs.Value.ToString());
+        this.StateHasChanged();
     }
 
 } 

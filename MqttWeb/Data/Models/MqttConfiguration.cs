@@ -3,8 +3,9 @@ using System.Collections.Generic;
 
 namespace MqttWeb.Data.Models {
     public class MqttConfiguration {
-        public MqttConfiguration (string id, string clientId, string host, int port, bool tls, string username, string password) {
+        public MqttConfiguration (Guid id, string name, string clientId, string host, int port, bool tls, string username, string password) {
             this.Id = id;
+            this.Name = name;
             this.ClientId = clientId;
             this.Host = host;
             this.Port = port;
@@ -13,7 +14,7 @@ namespace MqttWeb.Data.Models {
             this.Password = password;
         }
 
-        public string Id { get; }
+        public Guid Id { get; }
         public string ClientId { get; }
         public string Name { get; }
         public string Host { get; }

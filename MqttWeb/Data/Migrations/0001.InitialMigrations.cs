@@ -13,12 +13,12 @@ namespace MqttWeb.Data.Migrations
         public override void Up()
         {
             Create.Table("Configuration")
-                .WithColumn("Id").AsString().PrimaryKey().NotNullable()
+                .WithColumn("Id").AsGuid().PrimaryKey().NotNullable()
                 .WithColumn("Name").AsString().NotNullable()
                 .WithColumn("ClientId").AsString().NotNullable()
                 .WithColumn("Host").AsString().NotNullable()
-                .WithColumn("Port").AsInt32().NotNullable()
-                .WithColumn("Tls").AsBoolean().NotNullable()
+                .WithColumn("Port").AsCustom("int").NotNullable()
+                .WithColumn("Tls").AsCustom("bit").NotNullable()
                 .WithColumn("Username").AsString()
                 .WithColumn("Password").AsString();
         }

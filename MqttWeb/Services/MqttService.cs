@@ -11,40 +11,23 @@ using System.Collections.Generic;
 using System.Linq;
 using MqttWeb.Shared;
 using MqttWeb.Data;
+using MqttWeb.Data.Models;
 
 namespace MqttWeb.Services
 {
     public class MqttService
     {
-        public MqttService(MqttState mqttState, MqttConfigurationRepository configurationRepository)
+        public MqttService(MqttState mqttState)
         {
             this.mqttState = mqttState;
-            this.configurationRepository = configurationRepository;
         }
 
         private readonly MqttState mqttState;
         public MQTTnet.Client.IMqttClient client;
         private readonly MqttConfigurationRepository configurationRepository;
 
-        public async Task CreateConfiguration(MqttConfiguration configuration) 
+        public async Task<bool> ConnectAsync(string clientId, string host, int port, bool tls, string username, string password)
         {
-            await this.configurationRepository.Create(configuration.Name, configuration.ClientId, configuration.Host, configuration.Port, configuration.Tls, configuration.Username, configuration.Password);
-        }
-
-        public async Task UpdateConfiguration(MqttConfiguration configuration) 
-        {
-            //await this.configurationRepository.Update(configuration.Id, configuration.Name, configuration.Host, configuration.Port, configuration.Tls, configuration.Username, configuration.Password);
-        }
-
-        public async Task<IEnumerable<Services.MqttConfiguration>> GetConfigurations()
-        {
-            
-            return (await this.configurationRepository.GetAll()).Select(mc => new Services.MqttConfiguration { Id = System.Guid.Parse(mc.Id), Name = mc.Name, Host = mc.Host, Port = mc.Port, Tls = mc.Tls });
-        }
-
-        public async Task ConnectAsync(string clientId, string host, int port, bool tls, string username, string password)
-        {
-
             this.mqttState.AddMessage($"connecting to {host}");
             var options = new MqttClientOptionsBuilder()
                 .WithClientId(clientId)
@@ -59,9 +42,13 @@ namespace MqttWeb.Services
 
             client = new MqttFactory().CreateMqttClient();
 
+            var t = new TaskCompletionSource<Boolean>();
+            var ct = new CancellationTokenSource(5000); // timeout ms
+            ct.Token.Register(() => { if (!t.Task.IsCompleted) t.SetResult(false); }, useSynchronizationContext: false);
             client.UseConnectedHandler(e => {
                 this.mqttState.AddMessage("Connected");
                 mqttState.SetConnected(true);
+                t.SetResult(true);
             });
 
             client.UseDisconnectedHandler(e => {
@@ -83,10 +70,22 @@ namespace MqttWeb.Services
                 }
             });
 
-            var result = await client.ConnectAsync(options.Build(), CancellationToken.None);
-            if (result.ResultCode != MQTTnet.Client.Connecting.MqttClientConnectResultCode.Success) {
-                this.mqttState.AddMessage("Error: " + result.ReasonString);
+
+            try
+            {
+                var result = await client.ConnectAsync(options.Build(), CancellationToken.None);
+                if (result.ResultCode != MQTTnet.Client.Connecting.MqttClientConnectResultCode.Success)
+                {
+                    this.mqttState.AddMessage("Error: " + result.ReasonString);
+                }
+            } 
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e.Message + " : " + e.StackTrace);
+                t.SetResult(false);
             }
+
+            return await t.Task;
         }
 
         public async Task DisconnectAsync()

@@ -1,5 +1,5 @@
 using System.Data;
-using Microsoft.Data.Sqlite;
+using System.Data.SQLite;
 
 namespace MqttWeb.Data {
     public class MqttDbConnectionFactory : IDbConnectionFactory {
@@ -8,6 +8,6 @@ namespace MqttWeb.Data {
             this.connectionString = connectionString;
         }
 
-        public IDbConnection Create() => new SqliteConnection("Data Source=mqtt.db");
+        public IDbConnection Create() => new SQLiteConnection("Data Source=mqtt.db");
     }
 }

@@ -1,29 +1,30 @@
 ﻿@page "/configuration"
 @inject MqttState MqttState
 @inject MqttService MqttService
+@inject MqttConfigurationRepository ConfigurationRepository
 
     <div class="form">
         @if (configurations != null)
         {
             <label />
-            <select @onchange="@ConfigurationChanged" class="form-control">
-                <option selected="selected">--- Configurations ---</option>
+            <select class="form-control" @bind="@selectedConfigurationId">
                 @foreach (var conf in configurations)
                 {
                     <option value="@conf.Id">@conf.Name</option>
                 }
-                <option value>New...</option>
+                <option selected="selected" value="@Guid.Empty">New...</option>
             </select>
         }
         
-        <label>Name</label><input class="form-control" @bind-value="@selectedConfiguration.Name" @bind-value:event="oninput" />
-        <label>Client Id</label><input class="form-control" @bind-value="@selectedConfiguration.ClientId" @bind-value:event="oninput" />
-        <label>Host</label><input class="form-control" @bind-value="@selectedConfiguration.Host" @bind-value:event="oninput" />
-        <label>Port</label><input class="form-control" @bind-value="@selectedConfiguration.Port" @bind-value:event="oninput" />
-        <label>Username</label><input class="form-control" @bind-value="@selectedConfiguration.Username" @bind-value:event="oninput" />
-        <label>Password</label><input class="form-control" type="password" @bind-value="@selectedConfiguration.Password" @bind-value:event="oninput" />
+        <input type="hidden" @bind-value="@selectedConfigurationId" />
+        <label>Name</label><input class="form-control" @bind-value="@name" @bind-value:event="oninput" />
+        <label>Client Id</label><input class="form-control" @bind-value="@clientId" @bind-value:event="oninput" />
+        <label>Host</label><input class="form-control" @bind-value="@host" @bind-value:event="oninput" />
+        <label>Port</label><input class="form-control" @bind-value="@port" @bind-value:event="oninput" />
+        <label>Username</label><input class="form-control" @bind-value="@username" @bind-value:event="oninput" />
+        <label>Password</label><input class="form-control" type="password" @bind-value="@password" @bind-value:event="oninput" />
 
-        @if (selectedConfiguration?.Id == null)
+        @if (selectedConfigurationId == Guid.Empty)
         {
             <label></label><button class="btn btn-primary" @onclick="CreateConfiguration">Add</button>
         }
@@ -34,53 +35,78 @@
         }
 
         <label></label><button class="btn btn-secondary" @onclick="TestConfiguration">Test</button>
+        <label></label><span>@connectResult</span>
 
-
-        <div>Host: <span>@(selectedConfiguration != null ? selectedConfiguration?.Host : "")</span></div>
-        @*<div>Random: <span>@selectedId</span></div>
-        <div>Is new: <span>@(selectedId == Guid.Empty ? "Yes" : "No")</span></div>*@
     </div>
 
 
 @functions {
+    string name;
+    string clientId;
+    string host;
+    int? port = 1883;
+    bool? tls = false;
+    string username;
+    string password;
 
-    IEnumerable<Services.MqttConfiguration> configurations;
-    Services.MqttConfiguration selectedConfiguration = new MqttConfiguration();
+    string connectResult;
+
+    IEnumerable<MqttConfiguration> configurations;
+    Guid _selectedConfigurationId;
+    Guid selectedConfigurationId
+    {
+        get => _selectedConfigurationId;
+        set {
+            _selectedConfigurationId = value;
+            var conf = this.configurations.FirstOrDefault(c => c.Id == value);
+            name = conf?.Name;
+            clientId = conf?.ClientId;
+            host = conf?.Host;
+            port = conf?.Port;
+            tls = conf?.Tls;
+            username = conf?.Username;
+            password = conf?.Password;
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
         MqttState.StateChanged += (o, s) => base.InvokeAsync(StateHasChanged);
-        configurations = await MqttService.GetConfigurations();
-    }
-
-    protected async void ConfigurationChanged(UIChangeEventArgs configurationChangedEventArgs)
-    {
-        selectedConfiguration = this.configurations.FirstOrDefault(c => c.Id.ToString() == configurationChangedEventArgs.Value.ToString()) ?? new MqttConfiguration();
-        this.StateHasChanged();
+        configurations = await ConfigurationRepository.GetAll();
+        selectedConfigurationId = configurations.FirstOrDefault()?.Id ?? Guid.Empty;
     }
 
     async Task CreateConfiguration()
     {
-        await MqttService.CreateConfiguration(selectedConfiguration);
+        var newId = Guid.NewGuid();
+        await ConfigurationRepository.Create(newId, name, clientId, host, port.Value, tls ?? false, username, password);
+        configurations = await ConfigurationRepository.GetAll();
+        selectedConfigurationId = newId;
     }
 
     async Task UpdateConfiguration()
     {
-        await MqttService.UpdateConfiguration(selectedConfiguration);
+        await ConfigurationRepository.Update(selectedConfigurationId, name, clientId, host, port ?? 1883, tls ?? false, username, password);
+        configurations = await ConfigurationRepository.GetAll();
     }
 
     async Task DeleteConfiguration()
     {
-    }
-
-    async Task ConfigurationSelectionChanged()
-    {
+        await ConfigurationRepository.Delete(selectedConfigurationId);
+        configurations = await ConfigurationRepository.GetAll();
+        selectedConfigurationId = configurations.FirstOrDefault()?.Id ?? Guid.Empty;
     }
 
     async Task TestConfiguration()
     {
-
+        this.connectResult = "Testing...";
+        var result = await MqttService.ConnectAsync(clientId, host, port ?? 1883, tls ?? false, username, password);
+        this.connectResult = result ? "Success" : "Failure";
+        TimeoutHelper.SetTimeout(1500, () => {
+            base.InvokeAsync(() => {
+                this.connectResult = "";
+                this.StateHasChanged();
+            });
+        });
     }
-
-
 }
