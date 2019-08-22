@@ -17,18 +17,20 @@ namespace MqttWeb.Services
 {
     public class MqttService
     {
-        public MqttService(MqttState mqttState)
+        public MqttService(MqttState mqttState, LogRepository logger)
         {
             this.mqttState = mqttState;
+            this.logger = logger;
         }
 
         private readonly MqttState mqttState;
+        private readonly LogRepository logger;
         public MQTTnet.Client.IMqttClient client;
-        private readonly MqttConfigurationRepository configurationRepository;
 
         public async Task<bool> ConnectAsync(string clientId, string host, int port, bool tls, string username, string password)
         {
-            this.mqttState.AddMessage($"connecting to {host}");
+            await this.logger.LogAsync("Info", $"connecting to {host}");
+
             var options = new MqttClientOptionsBuilder()
                 .WithClientId(clientId)
                 .WithTcpServer(host, port)
@@ -39,20 +41,20 @@ namespace MqttWeb.Services
 
             if (tls)
                 options = options.WithTls();
-
+            
             client = new MqttFactory().CreateMqttClient();
 
             var t = new TaskCompletionSource<Boolean>();
             var ct = new CancellationTokenSource(5000); // timeout ms
             ct.Token.Register(() => { if (!t.Task.IsCompleted) t.SetResult(false); }, useSynchronizationContext: false);
             client.UseConnectedHandler(e => {
-                this.mqttState.AddMessage("Connected");
+                this.logger.Log("Info", $"Connected");
                 mqttState.SetConnected(true);
                 t.SetResult(true);
             });
 
             client.UseDisconnectedHandler(e => {
-                this.mqttState.AddMessage("Disconnected");
+                this.logger.Log("Info", $"Disconnected");
                 mqttState.SetConnected(false);
             });
 
@@ -76,12 +78,13 @@ namespace MqttWeb.Services
                 var result = await client.ConnectAsync(options.Build(), CancellationToken.None);
                 if (result.ResultCode != MQTTnet.Client.Connecting.MqttClientConnectResultCode.Success)
                 {
-                    this.mqttState.AddMessage("Error: " + result.ReasonString);
+                    await this.logger.LogAsync("Error", result.ReasonString);
                 }
             } 
             catch (Exception e)
             {
                 Console.Error.WriteLine(e.Message + " : " + e.StackTrace);
+                await this.logger.LogAsync("Error", e.Message + " : " + e.StackTrace);
                 t.SetResult(false);
             }
 

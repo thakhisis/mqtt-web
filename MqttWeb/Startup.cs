@@ -35,6 +35,7 @@ namespace MqttWeb
             //services.AddScoped<MqttContextFactory>();
 
             services.AddTransient<MqttConfigurationRepository>();
+            services.AddTransient<LogRepository>();
 
                         //Setup data migrations 
             services.AddFluentMigratorCore()
