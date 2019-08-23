@@ -17,17 +17,21 @@ Hvad er korrekt måde hvis man skal opdatere 'random' komponenter på baggrund a
 ## Todo
 - Functionality 
   - ~~Subscribed topics should be displayed in the navmenu for easy navigation~~
+  - Make add/remove/test configuration work again
 - Infrastructure
   - Create components for some of the elements: select, input
   - Create TemplateedComponents for some of the elements: List, Dialog
+  - Make infrastructure behave more like UI mockups
 - Database
   - ~~Create local database (mqtt.db)~~
-  - EF Migrations: https://medium.com/swlh/blazor-ef-core-a-simple-web-app-part-1-3c54380cf69a
-  - Create tables for saving (connection) configurations	
+  - ~~EF Migrations: https://medium.com/swlh/blazor-ef-core-a-simple-web-app-part-1-3c54380cf69a ~~
+  - ~~Change to FluentMigrator / Dapper because EF sucks balls ~~
+  - ~~Create tables for saving (connection) configurations~~
   - Create table(s) for saving currently subscribed topics in order to re-subscribe (on per configuration basis)
+  - Expand tables to accommodate all the necessary settings
 - UI
   - Drop down select of QoS items
   - ~~The 3 different 'forms' should be displayed in a nice coherent way~~
   - Incoming messages should be displayed with more information and in a more data-table like way
-
+  - Move CSS into LESS file and optimize
  

@@ -3,44 +3,169 @@
 @inject MqttService MqttService
 @inject MqttConfigurationRepository ConfigurationRepository
 
-    <div class="form">
-        @if (configurations != null)
-        {
-            <label />
-            <select class="form-control" @bind="@selectedConfigurationId">
-                @foreach (var conf in configurations)
-                {
-                    <option value="@conf.Id">@conf.Name</option>
-                }
-                <option selected="selected" value="@Guid.Empty">New...</option>
-            </select>
-        }
-        
-        <input type="hidden" @bind-value="@selectedConfigurationId" />
-        <label>Name</label><input class="form-control" @bind-value="@name" @bind-value:event="oninput" />
-        <label>Client Id</label><input class="form-control" @bind-value="@clientId" @bind-value:event="oninput" />
-        <label>Host</label><input class="form-control" @bind-value="@host" @bind-value:event="oninput" />
-        <label>Port</label><input class="form-control" @bind-value="@port" @bind-value:event="oninput" />
-        <label>Username</label><input class="form-control" @bind-value="@username" @bind-value:event="oninput" />
-        <label>Password</label><input class="form-control" type="password" @bind-value="@password" @bind-value:event="oninput" />
+<style>
+    .section > h3 {
+        max-width: 430px;
+        background-color: #DDDDE4;
+        padding: 5px 15px;
+        margin-left: -15px !important;
+        position: relative;
+    }
 
-        @if (selectedConfigurationId == Guid.Empty)
-        {
-            <label></label><button class="btn btn-primary" @onclick="CreateConfiguration">Add</button>
+        .section > h3 > .header-icon {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 0.7em;
+            color: #AAB;
         }
-        else
-        {
-            <label></label><button class="btn btn-primary" @onclick="UpdateConfiguration">Update</button>
-            <label></label><button class="btn btn-secondary" @onclick="DeleteConfiguration">Remove</button>
-        }
+            
+            .section > h3 > .header-icon:hover {
+                cursor: pointer;
+                color: #EFEFEF;
+            }
 
-        <label></label><button class="btn btn-secondary" @onclick="TestConfiguration">Test</button>
-        <label></label><span>@connectResult</span>
+    .section > .collapsible.isclosed {
+        height: 0px;
+        display: none;
+    }
+            
+    .flex-outer {
+        padding-left: 0px;
+        max-width: 400px;
+    }
 
+    .flex-outer li,
+    .flex-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .flex-outer > li > label,
+    .flex-outer li p {
+      flex: 1 0 120px;
+      max-width: 160px;
+    }
+ 
+    .flex-outer > li > label + *,
+    .flex-inner {
+      flex: 1 0 160px;
+    }
+
+    .flex-outer > li > input:not([type='checkbox']),
+    .flex-outer > li > textarea,
+    .flex-outer > li > select,
+    .flex-outer > li > button {
+      padding: 5px;
+      border: none;
+      height: 34px;
+      width: 100%;
+    }
+
+    .flex-outer > li > input:not([type='checkbox']) {
+        padding-left: 10px;
+    }
+    
+    .flex-outer > li:not(:last-child) {
+      margin-bottom: 5px;
+    }
+
+</style>
+
+<form>
+    <div class="section">
+        <h3>Connection settings</h3>
+        <ul class="flex-outer">
+            @if (configurations != null)
+            {
+                <li>
+                    <label>Connection</label>
+                    <select class="" @bind="@selectedConfigurationId">
+                        @foreach (var conf in configurations)
+                        {
+                            <option value="@conf.Id">@conf.Name</option>
+                        }
+                        <option value="">New...</option>
+                    </select>
+                </li>
+            }
+            <li>
+                <label for-name>Name</label>
+                <input id="name" type="text" class="" @bind-value="@name" @bind-value:event="oninput" />
+            </li>
+            <li>
+                <label for-host>Host</label>
+                <input id="host" type="text" class="" @bind-value="@host" @bind-value:event="oninput" />
+            </li>
+            <li>
+                <label for-port>Port</label>
+                <input id="port" type="number" class="" @bind-value="@port" @bind-value:event="oninput" />
+            </li>
+            <li>
+                <label for-clientId>Client Id</label>
+                <input id="clientId" type="text" class="" @bind-value="@clientId" @bind-value:event="oninput" />
+            </li>
+            @if (!selectedConfigurationId.HasValue)
+            {
+                <li>
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" @onclick="CreateConfiguration">Add</button>
+                </li>
+            }
+            else
+            {
+                <li>
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" @onclick="UpdateConfiguration">Update</button>
+                </li>
+            }
+            <li>
+                <label>&nbsp;</label>
+                <button class="btn btn-secondary" @onclick="TestConfiguration">Test</button>
+            </li>
+            @if (selectedConfigurationId.HasValue)
+            {
+                <li>
+                    <label>&nbsp;</label>
+                    <button class="btn btn-secondary" @onclick="DeleteConfiguration">Remove</button>
+                </li>
+            }
+        </ul>
     </div>
-
+    <div class="section">
+        <h3>General settings <span  @onclick="@(() => this.GeneralSettingsIsClosed = !this.GeneralSettingsIsClosed)" class="header-icon oi @ChevronClass(GeneralSettingsIsClosed)"></span></h3>
+        <ul class="flex-outer collapsible @IsClosedClass(GeneralSettingsIsClosed)">
+            <li>
+                <label for-host>Host</label>
+                <input id="host" type="text" class="" @bind-value="@host" @bind-value:event="oninput" />
+            </li>
+        </ul>
+    </div>
+    <div class="section">
+        <h3>User credentials <span @onclick="@(() => this.UserCredentialsIsClosed = !this.UserCredentialsIsClosed)" class="header-icon oi @ChevronClass(UserCredentialsIsClosed)"></span></h3>
+        <ul class="flex-outer collapsible @IsClosedClass(UserCredentialsIsClosed)">
+            <li>
+                <label for-username>Username</label>
+                <input id="username" type="text" class="" @bind-value="@username" @bind-value:event="oninput" />
+            </li>
+            <li>
+                <label for-password>Password</label>
+                <input id="password" type="password" class="" @bind-value="@password" @bind-value:event="oninput" />
+            </li>
+        </ul>
+    </div>
+</form>
 
 @functions {
+    /* UI stuff */
+    string IsClosedClass(bool isClosed) => isClosed ? "isclosed" : "";
+    string ChevronClass(bool isClosed) => isClosed ? "oi-chevron-bottom" : "oi-chevron-top";
+    bool GeneralSettingsIsClosed { get; set; } = false;
+    bool UserCredentialsIsClosed { get; set; } = false;
+
+    /* functionality stuff*/
+
     string name;
     string clientId;
     string host;
@@ -52,8 +177,8 @@
     string connectResult;
 
     IEnumerable<MqttConfiguration> configurations;
-    Guid _selectedConfigurationId;
-    Guid selectedConfigurationId
+    Guid? _selectedConfigurationId;
+    Guid? selectedConfigurationId
     {
         get => _selectedConfigurationId;
         set {
@@ -73,7 +198,7 @@
     {
         MqttState.StateChanged += (o, s) => base.InvokeAsync(StateHasChanged);
         configurations = await ConfigurationRepository.GetAll();
-        selectedConfigurationId = configurations.FirstOrDefault()?.Id ?? Guid.Empty;
+        selectedConfigurationId = configurations.FirstOrDefault()?.Id;
     }
 
     async Task CreateConfiguration()
@@ -86,13 +211,19 @@
 
     async Task UpdateConfiguration()
     {
-        await ConfigurationRepository.Update(selectedConfigurationId, name, clientId, host, port ?? 1883, tls ?? false, username, password);
+        if (!selectedConfigurationId.HasValue)
+            return;
+
+        await ConfigurationRepository.Update(selectedConfigurationId.Value, name, clientId, host, port ?? 1883, tls ?? false, username, password);
         configurations = await ConfigurationRepository.GetAll();
     }
 
     async Task DeleteConfiguration()
     {
-        await ConfigurationRepository.Delete(selectedConfigurationId);
+        if (!selectedConfigurationId.HasValue)
+            return;
+
+        await ConfigurationRepository.Delete(selectedConfigurationId.Value);
         configurations = await ConfigurationRepository.GetAll();
         selectedConfigurationId = configurations.FirstOrDefault()?.Id ?? Guid.Empty;
     }
