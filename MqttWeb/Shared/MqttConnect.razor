@@ -4,27 +4,23 @@
 @using System.Linq.Expressions
 @using MqttWeb.Data
 
-<h3>Connect</h3>
-<div class="form">
-    @if (configurations != null)
-    {
-        <label />
-        <select @onchange="@ConfigurationChanged" class="form-control">
-            @foreach (var conf in configurations)
-            {
-                <option value="@conf.Id">@conf.Name</option>
-            }
-        </select>
-    }
-    @if (MqttState.IsConnected)
-    {
-        <label></label><button class="btn btn-primary" @onclick="Disconnect">Disconnect</button>
-    }
-    else
-    {
-        <label></label><button class="btn btn-primary" @onclick="Connect">Connect</button>
-    }
-</div>
+@if (configurations != null)
+{
+    <select @onchange="@ConfigurationChanged" class="form-control" disabled="@(MqttState.IsConnected)">
+        @foreach (var conf in configurations)
+        {
+            <option value="@conf.Id">@conf.Name</option>
+        }
+    </select>
+}
+@if (MqttState.IsConnected)
+{
+    <button class="btn btn-primary form-control" @onclick="Disconnect">Disconnect</button>
+}
+else
+{
+    <button class="btn btn-primary form-control" @onclick="Connect">Connect</button>
+}
 
 @functions {
     IEnumerable<MqttConfiguration> configurations;

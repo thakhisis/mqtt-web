@@ -1,12 +1,36 @@
 ﻿@inherits LayoutComponentBase
 @inject MqttState MqttState
+
+<style>
+    .top-menu {
+        display: flex;
+        justify-content: space-between;
+        min-width: 100%;
+    }
+
+    .top-left-menu, .top-right-menu {
+        display: flex;
+    }
+
+    .top-left-menu {
+        
+    }
+
+    .top-right-menu {
+        
+    }
+</style>
+
+
 <div class="sidebar">
     <NavMenu />
 </div>
 
 <div class="main">
     <div class="top-row px-4">
-        <a href="/log"><span class="oi oi-list"></span></a>
+        <div class="top-menu">
+            <TopMenu />
+        </div>
     </div>
 
     <div class="content px-4">
