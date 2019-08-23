@@ -1,0 +1,33 @@
+@page "/log"
+@inject MqttWeb.Data.LogRepository LogRepository
+
+@if (logs != null)
+{
+    foreach (var log in logs)
+    {
+        <div>@log.Created :: @log.Type :: @log.Message</div>
+    }
+}
+
+<button @onclick="TestLog">Test Log</button>
+<button @onclick="Refresh">Refresh</button>
+
+@functions
+{
+    IEnumerable<MqttWeb.Data.Models.Log> logs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Refresh();
+    }
+
+    private async Task TestLog()
+    {
+        await LogRepository.LogAsync("Info", "Test from log page");
+    }
+
+    private async Task Refresh()
+    {
+        this.logs = await LogRepository.GetAll();
+    }
+}

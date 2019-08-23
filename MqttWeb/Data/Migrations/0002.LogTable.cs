@@ -13,7 +13,7 @@ namespace MqttWeb.Data.Migrations
         public override void Up()
         {
             Create.Table("Log")
-                .WithColumn("Id").AsInt32().PrimaryKey().Identity().NotNullable()
+                .WithColumn("Id").AsInt64().Identity().PrimaryKey().NotNullable()
                 .WithColumn("Type").AsString().NotNullable()
                 .WithColumn("Created").AsDateTime2().NotNullable()
                 .WithColumn("Message").AsString().NotNullable()

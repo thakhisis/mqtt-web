@@ -1,10 +1,10 @@
 using System;
 
-namespace MqttWeb.Data 
+namespace MqttWeb.Data.Models
 {
     public class Log
-    {
-        public Log(int id, string type, DateTime created, string message)
+    { //(System.Int64 Id, System.String Type, System.DateTime Created, System.String Message)
+        public Log(long id, string type, DateTime created, string message)
         {
             Id = id;
             Type = type;
@@ -12,7 +12,7 @@ namespace MqttWeb.Data
             Message = message;
         }
 
-        public int Id { get; }
+        public long Id { get; }
         public string Type { get; }
         public DateTime Created { get; }
         public string Message { get; }

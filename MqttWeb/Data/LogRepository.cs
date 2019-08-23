@@ -25,14 +25,17 @@ namespace MqttWeb.Data {
 
             using (var conn = this.dbConnectionFactory.Create()) {
                 await conn.ExecuteAsync($@"INSERT INTO [Log] ([Type], [Created], [Message]) VALUES
-                    (@{nameof(type)}, @{nameof(created)}, @{nameof(message)})", 
+                    (@{nameof(type)}, @{nameof(created)}, @{nameof(message)})",
                     new { type, message, created });
             }
         }
 
         public async Task<IEnumerable<Log>> GetAll () {
             using (var conn = this.dbConnectionFactory.Create ())
-                return await conn.QueryAsync<Log>("SELECT l.* FROM [Log] l", new { });
+            {
+                var norestul = await conn.QueryAsync<Log>("SELECT l.* FROM [Log] l", new { });
+                return norestul;
+            }
         }
     }
 }

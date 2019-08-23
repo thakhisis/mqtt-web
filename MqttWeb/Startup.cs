@@ -78,6 +78,7 @@ namespace MqttWeb
 
             // Run database migrations 
             migrationRunner.MigrateUp();
+            
         }
     }
 }
