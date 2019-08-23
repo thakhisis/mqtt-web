@@ -1,16 +1,59 @@
 @page "/log"
 @inject MqttWeb.Data.LogRepository LogRepository
 
+<style>
+    .log__data { 
+        margin-bottom: 10px; 
+    }
+
+    .log__row {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .log__row:nth-child(2n+1)
+    {
+        background-color: #ADDBE6;
+    }
+
+    .log__row:nth-child(2n) 
+    {
+         background-color: #DDEFF4;
+    }
+
+    .log__column {
+        display: flex;
+        flex-direction: column;
+        flex-basis: 100%;
+        flex: 30;
+    }
+
+    .log__column.log__date {
+        flex: 4;
+    }
+
+    .log__column.log__type {
+        flex: 1;
+    }
+</style>
+
 @if (logs != null)
 {
-    foreach (var log in logs)
-    {
-        <div>@log.Created :: @log.Type :: @log.Message</div>
-    }
+    <div class="log__data">
+        @foreach (var log in logs)
+        {
+            <div class="log__row">
+                <div class="log__column log__date">@log.Created</div>
+                <div class="log__column log__type">@log.Type</div>
+                <div class="log__column">@log.Message</div>
+            </div>
+        }
+    </div>
 }
 
-<button @onclick="TestLog">Test Log</button>
-<button @onclick="Refresh">Refresh</button>
+    <button class="btn btn-primary" @onclick="Refresh">Refresh</button>
 
 @functions
 {
