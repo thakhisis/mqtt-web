@@ -30,6 +30,9 @@ Hvad er korrekt måde hvis man skal opdatere 'random' komponenter på baggrund a
   - Create table(s) for saving currently subscribed topics in order to re-subscribe (on per configuration basis)
   - Expand tables to accommodate all the necessary settings
 - UI
+  - Inspo: 
+    - https://css-tricks.com/snippets/css/a-guide-to-flexbox/
+	- https://webdesign.tutsplus.com/tutorials/building-responsive-forms-with-flexbox--cms-26767
   - Drop down select of QoS items
   - ~~The 3 different 'forms' should be displayed in a nice coherent way~~
   - Incoming messages should be displayed with more information and in a more data-table like way
