@@ -27,6 +27,11 @@ namespace MqttWeb.Services
         private readonly LogRepository logger;
         public MQTTnet.Client.IMqttClient client;
 
+        public async Task ExceptionTest()
+        {
+            throw new NotImplementedException("exception test");
+        }
+
         public async Task<bool> ConnectAsync(string clientId, string host, int port, bool tls, string username, string password)
         {
             await this.logger.LogAsync("Info", $"connecting to {host}");

@@ -2,6 +2,9 @@
 @inject MqttState MqttState
 @inject MqttService MqttService
 
+
+<button @onclick="@ExceptionTest">CRASH</button>
+
 <MqttConnect />
 
 @if (MqttState.IsConnected)
@@ -12,8 +15,13 @@
 
 @functions {
 
-    protected override async Task OnInitializedAsync() 
+    protected override async Task OnInitializedAsync()
     {
         MqttState.StateChanged += (o,s) => base.InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ExceptionTest()
+    {
+        await MqttService.ExceptionTest();
     }
 }
