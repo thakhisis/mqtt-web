@@ -1,6 +1,8 @@
 @page "/"
 <!--@using Microsoft.AspNetCore.Blazor.Services gives error, why? -->
-@inject IUriHelper UriHelper
+
+@inject NavigationManager NavigationManager
+
 @functions {
-    public new void OnInitialized() => UriHelper.NavigateTo("/mqtt");
+    public new void OnInitialized() => NavigationManager.NavigateTo("/mqtt");
 }

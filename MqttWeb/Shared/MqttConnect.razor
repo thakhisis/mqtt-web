@@ -6,7 +6,7 @@
 
 @if (configurations != null)
 {
-    <select @onchange="@ConfigurationChanged" class="form-control" disabled="@(MqttState.IsConnected)">
+    <select @onchange="ConfigurationChanged" class="form-control" disabled="@(MqttState.IsConnected)">
         @foreach (var conf in configurations)
         {
             <option value="@conf.Id">@conf.Name</option>
@@ -48,7 +48,7 @@ else
         selectedConfiguration = configurations.FirstOrDefault();
     }
     
-    protected async void ConfigurationChanged(UIChangeEventArgs configurationChangedEventArgs)
+    protected void ConfigurationChanged(ChangeEventArgs configurationChangedEventArgs)
     {
         selectedConfiguration = this.configurations.FirstOrDefault(c => c.Id.ToString() == configurationChangedEventArgs.Value.ToString());
         this.StateHasChanged();
