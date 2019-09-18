@@ -1,5 +1,5 @@
 ## Installation
-````
+```
 git clone https://github.com/thakhisis/mqtt-web
 cd mqtt-web/MqttWeb
 dotnet run
