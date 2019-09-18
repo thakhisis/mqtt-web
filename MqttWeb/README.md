@@ -24,8 +24,8 @@ Hvad er korrekt måde hvis man skal opdatere 'random' komponenter på baggrund a
   - Make infrastructure behave more like UI mockups
 - Database
   - ~~Create local database (mqtt.db)~~
-  - ~~EF Migrations: https://medium.com/swlh/blazor-ef-core-a-simple-web-app-part-1-3c54380cf69a ~~
-  - ~~Change to FluentMigrator / Dapper because EF sucks balls ~~
+  - ~~EF Migrations: https://medium.com/swlh/blazor-ef-core-a-simple-web-app-part-1-3c54380cf69a~~
+  - ~~Change to FluentMigrator / Dapper because EF sucks balls~~
   - ~~Create tables for saving (connection) configurations~~
   - Create table(s) for saving currently subscribed topics in order to re-subscribe (on per configuration basis)
   - Expand tables to accommodate all the necessary settings
