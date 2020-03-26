@@ -1,7 +1,7 @@
 @page "/subscription/{topic}"
 @using System.Linq
 @inject MqttState MqttState
-@inject IUriHelper UriHelper
+@inject NavigationManager NavigationManager
 
 <h3>Messages @(subscription != null ? subscription.Topic : "")</h3>
 @if (subscription != null)
@@ -15,14 +15,14 @@
 @functions { 
     MqttWeb.Services.MqttSubscription subscription;
 
-    [Parameter] private string topic { get; set; } 
+    [Parameter] public string topic { get; set; } 
 
     protected override void OnInitialized() {
 
         var subscriptions = MqttState.Subscriptions.Where(s => s.UrlSafeTopic == topic);
 
         if (subscriptions.Count() != 1) {
-            UriHelper.NavigateTo("/mqtt");
+            NavigationManager.NavigateTo("/mqtt");
         }
 
         subscription = subscriptions.Single();

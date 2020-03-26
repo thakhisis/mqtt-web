@@ -16,7 +16,7 @@
             </select>
         }
         
-        <input type="hidden" @bind-value="@selectedConfigurationId" />
+        <input type="hidden" @bind="@selectedConfigurationId" />
         <label>Name</label><input class="form-control" @bind-value="@name" @bind-value:event="oninput" />
         <label>Client Id</label><input class="form-control" @bind-value="@clientId" @bind-value:event="oninput" />
         <label>Host</label><input class="form-control" @bind-value="@host" @bind-value:event="oninput" />

@@ -9,7 +9,7 @@
     @if (configurations != null)
     {
         <label />
-        <select @onchange="@ConfigurationChanged" class="form-control">
+        <select @onchange="ConfigurationChanged" class="form-control">
             @foreach (var conf in configurations)
             {
                 <option value="@conf.Id">@conf.Name</option>
@@ -51,11 +51,11 @@
         configurations = await ConfigurationRepository.GetAll();
         selectedConfiguration = configurations.FirstOrDefault();
     }
-    
-    protected async void ConfigurationChanged(UIChangeEventArgs configurationChangedEventArgs)
-    {
-        selectedConfiguration = this.configurations.FirstOrDefault(c => c.Id.ToString() == configurationChangedEventArgs.Value.ToString());
-        this.StateHasChanged();
-    }
 
+    protected async void ConfigurationChanged(ChangeEventArgs args) 
+    {
+        selectedConfiguration = this.configurations.FirstOrDefault(c => c.Id.ToString() == args.Value.ToString());
+        this.StateHasChanged();
+    } 
+    
 } 
