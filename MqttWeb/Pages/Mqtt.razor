@@ -12,7 +12,7 @@
 
 @functions {
 
-    protected override async Task OnInitializedAsync() 
+    protected override void OnInitialized() 
     {
         MqttState.StateChanged += (o,s) => base.InvokeAsync(StateHasChanged);
     }

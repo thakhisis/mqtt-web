@@ -52,7 +52,7 @@
         selectedConfiguration = configurations.FirstOrDefault();
     }
 
-    protected async void ConfigurationChanged(ChangeEventArgs args) 
+    protected void ConfigurationChanged(ChangeEventArgs args) 
     {
         selectedConfiguration = this.configurations.FirstOrDefault(c => c.Id.ToString() == args.Value.ToString());
         this.StateHasChanged();
