@@ -10,6 +10,7 @@ using FluentMigrator.Runner;
 using FluentMigrator.Runner.Initialization;
 using Dapper;
 using Dapper.Contrib.Extensions;
+using System;
 
 namespace MqttWeb
 {

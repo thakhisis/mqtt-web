@@ -24,8 +24,6 @@ namespace MqttWeb.Services
 
         private readonly MqttState mqttState;
         public MQTTnet.Client.IMqttClient client;
-        private readonly MqttConfigurationRepository configurationRepository;
-
         public async Task<bool> ConnectAsync(string clientId, string host, int port, bool tls, string username, string password)
         {
             this.mqttState.AddMessage($"connecting to {host}");

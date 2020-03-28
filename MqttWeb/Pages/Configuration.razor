@@ -100,7 +100,7 @@
     async Task TestConfiguration()
     {
         this.connectResult = "Testing...";
-        var result = await MqttService.ConnectAsync(clientId, host, port ?? 1883, tls ?? false, username, password);
+        var result = await MqttService.ConnectAsync(clientId, host, port ?? 1883, tls ?? port == 8883, username, password);
         this.connectResult = result ? "Success" : "Failure";
         TimeoutHelper.SetTimeout(1500, () => {
             base.InvokeAsync(() => {
