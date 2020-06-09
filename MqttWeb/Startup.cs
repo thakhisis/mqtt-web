@@ -13,24 +13,17 @@ using Dapper.Contrib.Extensions;
 using Microsoft.Extensions.Logging;
 using System;
 using Nito.Disposables;
+using WebWindows.Blazor;
 
 namespace MqttWeb
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-        
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddRazorPages();
-            services.AddServerSideBlazor();
             services.AddSingleton<IDbConnectionFactory, MqttDbConnectionFactory>(provider => new MqttDbConnectionFactory("Data Source=mqtt.db"));
             services.AddScoped<MqttState>();
             services.AddScoped<MqttService>();
@@ -59,33 +52,16 @@ namespace MqttWeb
 
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IMigrationRunner migrationRunner, IDbConnectionFactory factory)
-        { 
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
-
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseRouting();
-            
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapBlazorHub();
-                endpoints.MapFallbackToPage("/_Host");
-            });
-
+        public void Configure(DesktopApplicationBuilder app, IMigrationRunner migrationRunner, IDbConnectionFactory factory)
+        {
+            app.AddComponent<App>("app");
+        //}
+        //
+        //// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        //public void Configure(IApplicationBuilder app, )
+        //{ 
             // Run database migrations 
             migrationRunner.MigrateUp();
-            
         }
     }
 

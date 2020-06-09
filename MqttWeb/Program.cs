@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using WebWindows.Blazor;
 
 namespace MqttWeb
 {
@@ -16,7 +17,10 @@ namespace MqttWeb
     {
         public static void Main(string[] args)
         {
-            var host = CreateHostBuilder(args).Build();
+            // transfer to webwindow
+            //var host = CreateHostBuilder(args).Build();
+
+            ComponentsDesktop.Run<Startup>("Mqtt Web", "wwwroot/index.html");
             
             // Initialize the database
             /*var scopeFactory = host.Services.GetRequiredService<IServiceScopeFactory>();
@@ -29,7 +33,7 @@ namespace MqttWeb
                 }
             }
             */
-            host.Run();
+            //host.Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

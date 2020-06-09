@@ -13,5 +13,10 @@
     <PackageReference Include="MQTTnet" Version="3.0.7" />
     <PackageReference Include="Nito.Disposables" Version="2.0.1" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.111" />
+    <PackageReference Include="WebWindow.Blazor" Version="0.1.0-20200214.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 </Project>
